@@ -7,6 +7,10 @@ var dt = {
     let ageDate = new Date(ageDifMs); // miliseconds from epoch
     return Math.abs(ageDate.getUTCFullYear() - 1970);
   },
+  calBirthday : function(age) {
+    let ageDifMs = Math.floor(age*365.25*86400000)
+    return new Date(ageDifMs)
+  },
   toDateISO : function(date) {
     if(this.isDate(date)) {
       return date.toISOString().slice(0,10)
@@ -32,8 +36,7 @@ var pt = {
     }
     else if(old.isChange(pt.lib, e, "Age")) {
       if(e.field("Age")) {
-        let days = Math.floor(e.field("Age")*365.25)
-        e.set("DOB", new Date(today.getFullYear(), today.getMonth(), today.getDate()-days, 7))
+        e.set("DOB", dt.calBirthday(e.field("Age")))
       }
       else {
         e.set("DOB", null)
