@@ -33,6 +33,7 @@ var pt = {
       else {
         e.set("Age", null)
       }
+      console.log("DOB>Age : "+e.field("Age"))
     }
     else if(old.isChange(pt.lib, e, "Age")) {
       if(e.field("Age")) {
@@ -41,11 +42,13 @@ var pt = {
       else {
         e.set("DOB", null)
       }
+      console.log("Age>DOB : "+e.field("DOB"))
     }
     else {
       if(e.field("DOB")) {
         e.set("Age", dt.calAge(e.field("DOB")))
       }
+      console.log("!DOB>!Age : "+e.field("Age"))
     }
   }
 }
