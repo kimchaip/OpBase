@@ -1,11 +1,31 @@
+var dt = {
+  isDate : function(value) {
+    return value instanceof Date && !isNaN(value)
+  },
+  calAge : function(birthdate) {
+    let ageDifMs = Date.now() - birthday.getTime();
+    let ageDate = new Date(ageDifMs); // miliseconds from epoch
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+    }
+  },
+  toDateISO : function(date) {
+    if(this.isDate(date)) {
+      return date.toISOString().slice(0,10)
+    }
+    else {
+      return ""
+    }
+  }
+}
+var today = new Date()
+
 var pt = {
   name : "Patients",
   lib : libByName("Patients"),
   setAgeDOB : function(e) {
     if(old.isChange(pt.lib, e, "DOB")) {
       if(e.field("DOB")) {
-        let years = Math.floor(e.field("DOB").getTime()/(86400000*365.25))
-        e.set("Age", years)
+        e.set("Age", dt.calAge(e.field("DOB")))
       }
       else {
         e.set("Age", null)
@@ -22,8 +42,7 @@ var pt = {
     }
     else {
       if(e.field("DOB")) {
-        let years = Math.floor(e.field("DOB").getTime()/(86400000*365.25))
-        e.set("Age", years)
+        e.set("Age", dt.calAge(e.field("DOB")))
       }
     }
   }
@@ -38,7 +57,7 @@ var vs = {
     if(pts.length>0) {
       let p = pts[0]
       let vss = lib().linksTo(p)
-      if(vss.some(v=> my.gdate(my.date(v.field("VisitDate")))<=ntoday && (my.gdate(my.date(v.field("DCDate")))>=today || !v.field("DCDate")) )) {
+      if(vss.some(v=> dt.toDateISO(v.field("VisitDate"))<=dt.toDateISO(today) && (dt.toDateISO(v.field("DCDate"))>=dt.toDateISO(today) || !v.field("DCDate")) )) {
         p.set("Status", "Active")
       }
       else {
