@@ -79,6 +79,8 @@ var ob = {
 var old = {
   isChange : function(lib, e, f) {
     let o = lib.findById(e.id)
+    log(o)
+    log(e.field(f))
     if(e.field(f) && o) {
       if(dt.isDate(e.field(f))) {
         if(dt.toDateISO(e.field(f)) != dt.toDateISO(o.field(f))) {
