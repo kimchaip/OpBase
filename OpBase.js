@@ -2,7 +2,7 @@ var dt = {
   isDate : function(value) {
     return value instanceof Date && !isNaN(value)
   },
-  calAge : function(birthdate) {
+  calAge : function(birthday) {
     let ageDifMs = Date.now() - birthday.getTime();
     let ageDate = new Date(ageDifMs); // miliseconds from epoch
     return Math.abs(ageDate.getUTCFullYear() - 1970);
