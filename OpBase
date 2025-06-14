@@ -5,7 +5,23 @@ var pt = {
 
 var vs = {
   name : "Visit",
-  lib : libByName(this.name)
+  lib : libByName(this.name),
+  setPtActive : function(e) {
+    let pts = e.field(pt.name)
+
+    if(pts.length>0) {
+      let p = pts[0]
+      let vss = lib().linksTo(p)
+      p.set("Status", "Still")
+      for(let i=0; i<vss.length; i++) {
+        let v = vss[i]
+        if(my.gdate(my.date(v.field("VisitDate")))<=today && (my.gdate(my.date(v.field("DCDate")))>=today || !v.field("DCDate"))) {
+          p.set("Status", "Active")
+          break
+        }
+      }
+    }
+  }
 }
 
 var ob = {
@@ -24,11 +40,13 @@ var tg = {
   },
   vsCreateBefore : function() {
   },
-  vsCreateAfter : function() {
+  vsCreateAfter : function(e) {
+    vs.setPtActive(e)
   },
   vsUpdateBefore : function() {
   },
   vsUpdateAfter : function() {
+    vs.setPtActive(e)
   },
   obCreateBefore : function() {
   },
