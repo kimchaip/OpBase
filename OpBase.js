@@ -28,30 +28,30 @@ var ob = {
 }
 
 var tg = {
-  ptCreateBefore : function() {
+  ptCreateBefore : function(e) {
   },
-  ptCreateAfter : function() {
+  ptCreateAfter : function(e) {
   },
-  ptUpdateBefore : function() {
+  ptUpdateBefore : function(e) {
   },
-  ptUpdateAfter : function() {
+  ptUpdateAfter : function(e) {
   },
-  vsCreateBefore : function() {
+  vsCreateBefore : function(e) {
   },
   vsCreateAfter : function(e) {
     vs.setPtActive(e)
   },
-  vsUpdateBefore : function() {
+  vsUpdateBefore : function(e) {
   },
-  vsUpdateAfter : function() {
+  vsUpdateAfter : function(e) {
     vs.setPtActive(e)
   },
-  obCreateBefore : function() {
+  obCreateBefore : function(e) {
   },
-  obCreateAfter : function() {
+  obCreateAfter : function(e) {
   },
-  obUpdateBefore : function() {
+  obUpdateBefore : function(e) {
   },
-  obUpdateAfter : function() {
+  obUpdateAfter : function(e) {
   },
 }
