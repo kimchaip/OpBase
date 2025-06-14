@@ -2,7 +2,7 @@ var pt = {
   name : "Patient",
   lib : libByName(this.name),
   setAgeDOB : function(e) {
-    if(old.isChange.call(pt, e, "DOB")) {
+    if(old.isChange(pt.lib, e, "DOB")) {
       if(e.field("DOB")) {
         let years = Math.floor(e.field("DOB").getTime()/(86400000*364.25))
         e.set("Age", years)
@@ -11,7 +11,7 @@ var pt = {
         e.set("Age", null)
       }
     }
-    else if(old.isChange.call(pt, e, "Age")) {
+    else if(old.isChange(pt.lib, e, "Age")) {
       if(e.field("Age")) {
         let days = Math.floor(e.field("Age")*365.25)
         e.set("DOB", new Date(today.getFullYear(), today.getMonth(), today.getDate()-days, 7))
@@ -54,8 +54,8 @@ var ob = {
 }
 
 var old = {
-  isChange : function(e, f) {
-    let o = this.lib.findById(f)
+  isChange : function(lib, e, f) {
+    let o = lib.findById(f)
     if(e.field(f) && o && e.field(f) != o.field(f)) {
       return true
     }
