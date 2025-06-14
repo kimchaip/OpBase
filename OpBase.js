@@ -102,7 +102,7 @@ var old = {
     else if(e.field(f) && !o) {
       return true
     }
-    else if(!e.field && o) {
+    else if(!e.field(f) && o) {
       return true
     }
     else {
