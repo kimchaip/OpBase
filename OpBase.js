@@ -6,7 +6,6 @@ var dt = {
     let ageDifMs = Date.now() - birthday.getTime();
     let ageDate = new Date(ageDifMs); // miliseconds from epoch
     return Math.abs(ageDate.getUTCFullYear() - 1970);
-    }
   },
   toDateISO : function(date) {
     if(this.isDate(date)) {
