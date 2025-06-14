@@ -8,8 +8,7 @@ var dt = {
     return Math.abs(ageDate.getUTCFullYear() - 1970);
   },
   calBirthday : function(age) {
-    let ageDifMs = Math.floor(age*365.25*86400000)
-    return new Date(ageDifMs)
+    return new Date(today.getFullYear()-age, today.getMonth(), today.getDate(), 7)
   },
   toDateISO : function(date) {
     if(this.isDate(date)) {
