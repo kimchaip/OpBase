@@ -22,7 +22,7 @@ var pt = {
     }
     else {
       if(e.field("DOB")) {
-        let years = Math.floor(e.field("DOB").getTime()/(86400000*364.25))
+        let years = Math.floor(e.field("DOB").getTime()/(86400000*365.25))
         e.set("Age", years)
       }
     }
