@@ -1,0 +1,41 @@
+var pt = {
+  name : "Patient",
+  lib : libByName(this.name)
+}
+
+var vs = {
+  name : "Visit",
+  lib : libByName(this.name)
+}
+
+var ob = {
+  name : "OpBase",
+  lib : libByName(this.name)
+}
+
+var tg = {
+  ptCreateBefore : function() {
+  },
+  ptCreateAfter : function() {
+  },
+  ptUpdateBefore : function() {
+  },
+  ptUpdateAfter : function() {
+  },
+  vsCreateBefore : function() {
+  },
+  vsCreateAfter : function() {
+  },
+  vsUpdateBefore : function() {
+  },
+  vsUpdateAfter : function() {
+  },
+  obCreateBefore : function() {
+  },
+  obCreateAfter : function() {
+  },
+  obUpdateBefore : function() {
+  },
+  obUpdateAfter : function() {
+  },
+}
