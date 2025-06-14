@@ -1,6 +1,32 @@
 var pt = {
   name : "Patient",
-  lib : libByName(this.name)
+  lib : libByName(this.name),
+  setAgeDOB : function(e) {
+    if(old.isChange.call(pt, e, "DOB")) {
+      if(e.field("DOB")) {
+        let years = Math.floor(e.field("DOB").getTime()/(86400000*364.25))
+        e.set("Age", years)
+      }
+      else {
+        e.set("Age", null)
+      }
+    }
+    else if(old.isChange.call(pt, e, "Age")) {
+      if(e.field("Age")) {
+        let days = Math.floor(e.field("Age")*365.25)
+        e.set("DOB", new Date(today.getFullYear(), today.getMonth(), today.getDate()-days, 7))
+      }
+      else {
+        e.set("DOB", null)
+      }
+    }
+    else {
+      if(e.field("DOB")) {
+        let years = Math.floor(e.field("DOB").getTime()/(86400000*364.25))
+        e.set("Age", years)
+      }
+    }
+  }
 }
 
 var vs = {
@@ -27,12 +53,29 @@ var ob = {
   lib : libByName(this.name)
 }
 
+var old = {
+  isChange : function(e, f) {
+    let o = this.lib.findById(f)
+    if(e.field(f) && o && e.field(f) != o.field(f)) {
+      return true
+    }
+    else if(!o && e.field(f)) {
+      return true
+    }
+    else {
+      return false
+    }
+  }
+}
+
 var tg = {
   ptCreateBefore : function(e) {
+    pt.setAgeDOB(e)
   },
   ptCreateAfter : function(e) {
   },
   ptUpdateBefore : function(e) {
+    pt.setAgeDOB(e)
   },
   ptUpdateAfter : function(e) {
   },
