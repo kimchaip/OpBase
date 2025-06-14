@@ -80,8 +80,23 @@ var ob = {
 var old = {
   isChange : function(lib, e, f) {
     let o = lib.findById(e.id)
-    if(e.field(f) && o && e.field(f) != o.field(f)) {
-      return true
+    if(e.field(f) && o) {
+      if(dt.isDate(e.field(f))) {
+        if(dt.toDateISO(e.field(f)) != dt.toDateISO(o.field(f))) {
+          return true
+        }
+        else {
+          return false
+        }
+      }
+      else {
+        if(e.field(f) != o.field(f)) {
+          return true
+        }
+        else {
+          return false
+        }
+      }
     }
     else if(!o && e.field(f)) {
       return true
