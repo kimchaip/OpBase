@@ -1,6 +1,6 @@
 var pt = {
-  name : "Patient",
-  lib : libByName("Patient"),
+  name : "Patients",
+  lib : libByName("Patients"),
   setAgeDOB : function(e) {
     if(old.isChange(pt.lib, e, "DOB")) {
       if(e.field("DOB")) {
@@ -55,7 +55,7 @@ var ob = {
 
 var old = {
   isChange : function(lib, e, f) {
-    let o = lib.findById(f)
+    let o = lib.findById(e.id)
     if(e.field(f) && o && e.field(f) != o.field(f)) {
       return true
     }
