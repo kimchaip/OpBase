@@ -97,7 +97,10 @@ var old = {
         }
       }
     }
-    else if(!o && e.field(f)) {
+    else if(e.field(f) && !o) {
+      return true
+    }
+    else if(!e.field && o) {
       return true
     }
     else {
