@@ -1,6 +1,6 @@
 var pt = {
   name : "Patient",
-  lib : libByName(this.name),
+  lib : libByName("Patient"),
   setAgeDOB : function(e) {
     if(old.isChange(pt.lib, e, "DOB")) {
       if(e.field("DOB")) {
@@ -31,7 +31,7 @@ var pt = {
 
 var vs = {
   name : "Visit",
-  lib : libByName(this.name),
+  lib : libByName("Visit"),
   setPtActive : function(e) {
     let pts = e.field(pt.name)
 
@@ -50,7 +50,7 @@ var vs = {
 
 var ob = {
   name : "OpBase",
-  lib : libByName(this.name)
+  lib : libByName("OpBase")
 }
 
 var old = {
