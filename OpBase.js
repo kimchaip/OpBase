@@ -2,6 +2,15 @@ var dt = {
   isDate : function(value) {
     return value instanceof Date && !isNaN(value)
   },
+  diffDays : function(date1, date2) {
+    if(this.isDate(date1) && this.isDate(date2)) {
+      let diffTime = Math.abs(date2 - date1);
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+    else {
+      return null
+    }
+  },
   calAge : function(birthday) {
     let ageDifMs = Date.now() - birthday.getTime();
     let ageDate = new Date(ageDifMs); // miliseconds from epoch
