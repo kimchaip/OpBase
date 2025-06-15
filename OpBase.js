@@ -25,6 +25,7 @@ var pt = {
   name : "Patients",
   lib : libByName("Patients"),
   setAgeDOB : function(e) {
+    Message(e.field("Ward"))
     if(old.isChange(pt.lib, e, "DOB")) {
       if(e.field("DOB")) {
         e.set("Age", dt.calAge(e.field("DOB")))
@@ -32,7 +33,6 @@ var pt = {
       else {
         e.set("Age", null)
       }
-      log("DOB>Age : "+e.field("Age"))
     }
     else if(old.isChange(pt.lib, e, "Age")) {
       if(e.field("Age")) {
@@ -41,13 +41,11 @@ var pt = {
       else {
         e.set("DOB", null)
       }
-      log("Age>DOB : "+e.field("DOB"))
     }
     else {
       if(e.field("DOB")) {
         e.set("Age", dt.calAge(e.field("DOB")))
       }
-      log("!DOB>!Age : "+e.field("Age"))
     }
   }
 }
@@ -55,7 +53,7 @@ var pt = {
 var vs = {
   name : "Visit",
   lib : libByName("Visit"),
-  setPtActive : function(e) {
+  setPtField : function(e) {
     let pts = e.field("Patient")
 
     if(pts.length>0) {
@@ -63,9 +61,11 @@ var vs = {
       let vss = lib().linksTo(p)
       if(vss.some(v=> dt.toDateISO(v.field("VisitDate"))<=dt.toDateISO(today) && (dt.toDateISO(v.field("DCDate"))>dt.toDateISO(today) || !v.field("DCDate")) )) {
         p.set("Status", "Active")
+        p.set("Ward", e.field("Ward"))
       }
       else {
         p.set("Status", "Still")
+        p.set("Ward", "")
       }
     }
   }
@@ -86,9 +86,6 @@ var old = {
       ov = dt.toDateISO(ov)
       ev = dt.toDateISO(ev)
     }
-
-    log(f+" "+ov)
-    log(f+" "+ev)
 
     if(ev && ov) {
       return ev != ov
@@ -115,12 +112,12 @@ var tg = {
   vsCreateBefore : function(e) {
   },
   vsCreateAfter : function(e) {
-    vs.setPtActive(e)
+    vs.setPtField(e)
   },
   vsUpdateBefore : function(e) {
   },
   vsUpdateAfter : function(e) {
-    vs.setPtActive(e)
+    vs.setPtField(e)
   },
   obCreateBefore : function(e) {
   },
