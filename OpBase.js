@@ -82,7 +82,7 @@ var old = {
     let ov = o?o.field(f):null
     let ev = e.field(f)
 
-    if(f.includes("Date")) {
+    if(f.includes("Date") || f.includes("DOB")) {
       ov = dt.toDateISO(ov)
       ev = dt.toDateISO(ev)
     }
