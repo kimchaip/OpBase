@@ -53,8 +53,8 @@ var vs = {
   name : "Visit",
   lib : libByName("Visit"),
   setDCDate : function(e) {
-    if(old.isChange(vs.lib, e, "OpType")) {
-      if(e.field("OpType")=="OPD") {
+    if(old.isChange(vs.lib, e, "VisitType")) {
+      if(e.field("VisitType")=="OPD") {
         e.set("DCDate", e.field("VisitDate"))
       }
       else {
