@@ -79,34 +79,22 @@ var ob = {
 var old = {
   isChange : function(lib, e, f) {
     let o = lib.findById(e.id)
-    log(f+" "+o)
-    log(f+" "+e.field(f))
-    if(e.field(f) && o) {
-      if(dt.isDate(e.field(f))) {
-        if(dt.toDateISO(e.field(f)) != dt.toDateISO(o.field(f))) {
-          return true
-        }
-        else {
-          return false
-        }
-      }
-      else {
-        if(e.field(f) != o.field(f)) {
-          return true
-        }
-        else {
-          return false
-        }
-      }
+    let ov = o?o.field(f):null
+    let ev = e.field(f)
+
+    if(f.includes("Date")) {
+      ov = dt.toDateISO(ov)
+      ev = dt.toDateISO(ev)
     }
-    else if(e.field(f) && !o) {
-      return true
-    }
-    else if(!e.field(f) && o) {
-      return true
+
+    log(f+" "+ov)
+    log(f+" "+ev)
+
+    if(ev && ov) {
+      return ev != ov
     }
     else {
-      return false
+      return ev || ov
     }
   }
 }
