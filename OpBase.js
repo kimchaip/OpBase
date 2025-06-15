@@ -56,7 +56,7 @@ var vs = {
   name : "Visit",
   lib : libByName("Visit"),
   setPtActive : function(e) {
-    let pts = e.field(pt.name)
+    let pts = e.field("Patient")
 
     if(pts.length>0) {
       let p = pts[0]
