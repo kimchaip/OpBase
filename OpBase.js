@@ -61,7 +61,7 @@ var vs = {
     if(pts.length>0) {
       let p = pts[0]
       let vss = lib().linksTo(p)
-      if(vss.some(v=> dt.toDateISO(v.field("VisitDate"))<=dt.toDateISO(today) && (dt.toDateISO(v.field("DCDate"))>=dt.toDateISO(today) || !v.field("DCDate")) )) {
+      if(vss.some(v=> dt.toDateISO(v.field("VisitDate"))<=dt.toDateISO(today) && (dt.toDateISO(v.field("DCDate"))>dt.toDateISO(today) || !v.field("DCDate")) )) {
         p.set("Status", "Active")
       }
       else {
