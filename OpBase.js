@@ -102,11 +102,13 @@ var old = {
 var tg = {
   ptCreateBefore : function(e) {
     pt.setAgeDOB(e)
+    e.recalc()
   },
   ptCreateAfter : function(e) {
   },
   ptUpdateBefore : function(e) {
     pt.setAgeDOB(e)
+    e.recalc()
   },
   ptUpdateAfter : function(e) {
   },
