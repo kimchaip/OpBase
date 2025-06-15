@@ -52,6 +52,16 @@ var pt = {
 var vs = {
   name : "Visit",
   lib : libByName("Visit"),
+  setDCDate : function(e) {
+    if(old.isChange(vs.lib, e, "OpType")) {
+      if(e.field("OpType")=="OPD") {
+        e.set("DCDate", e.field("VisitDate"))
+      }
+      else {
+        e.set("DCDate", "")
+      }
+    }
+  },
   setPtField : function(e) {
     let pts = e.field("Patient")
 
@@ -112,11 +122,13 @@ var tg = {
   ptUpdateAfter : function(e) {
   },
   vsCreateBefore : function(e) {
+    vs.setDCDate(e)
   },
   vsCreateAfter : function(e) {
     vs.setPtField(e)
   },
   vsUpdateBefore : function(e) {
+    vs.setDCDate(e)
   },
   vsUpdateAfter : function(e) {
     vs.setPtField(e)
