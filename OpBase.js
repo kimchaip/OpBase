@@ -25,7 +25,6 @@ var pt = {
   name : "Patients",
   lib : libByName("Patients"),
   setAgeDOB : function(e) {
-    log(e.field("Ward"))
     if(old.isChange(pt.lib, e, "DOB")) {
       if(e.field("DOB")) {
         e.set("Age", dt.calAge(e.field("DOB")))
@@ -59,7 +58,10 @@ var vs = {
     if(pts.length>0) {
       let p = pts[0]
       let vss = lib().linksTo(p)
-      if(vss.some(v=> dt.toDateISO(v.field("VisitDate"))<=dt.toDateISO(today) && (dt.toDateISO(v.field("DCDate"))>dt.toDateISO(today) || !v.field("DCDate")) )) {
+      if(vss.some(v=> {
+        return (v.field("VisitType")=="OPD" && dt.toDateISO(v.field("VisitDate"))==dt.toDateISO(today) && (!v.field("DCDate") || dt.toDateISO(v.field("DCDate"))==dt.toDateISO(today)))
+                || (v.field("VisitType")=="Admit" && dt.toDateISO(v.field("VisitDate"))<=dt.toDateISO(today) && (!v.field("DCDate") || dt.toDateISO(v.field("DCDate"))>dt.toDateISO(today)))
+      })) {
         p.set("Status", "Active")
         p.set("Ward", e.field("Ward"))
       }
