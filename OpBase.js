@@ -25,7 +25,7 @@ var pt = {
   name : "Patients",
   lib : libByName("Patients"),
   setAgeDOB : function(e) {
-    Message(e.field("Ward"))
+    message(e.field("Ward"))
     if(old.isChange(pt.lib, e, "DOB")) {
       if(e.field("DOB")) {
         e.set("Age", dt.calAge(e.field("DOB")))
