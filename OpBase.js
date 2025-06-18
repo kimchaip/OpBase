@@ -145,12 +145,14 @@ var tg = {
   },
   vsCreateBefore : function(e) {
     vs.setDCDate(e)
+    vs.setStatus(e)
   },
   vsCreateAfter : function(e) {
     vs.setPtField(e)
   },
   vsUpdateBefore : function(e) {
     vs.setDCDate(e)
+    vs.setStatus(e)
   },
   vsUpdateAfter : function(e) {
     vs.setPtField(e)
