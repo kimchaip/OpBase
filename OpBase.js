@@ -62,12 +62,28 @@ var vs = {
   name : "Visit",
   lib : libByName("Visit"),
   setDCDate : function(e) {
-    if(old.isChange(vs.lib, e, "VisitType")) {
-      if(e.field("VisitType")=="OPD") {
-        e.set("DCDate", e.field("VisitDate"))
+    if(e.field("VisitType")=="OPD" ) {
+      e.set("DCDate", e.field("VisitDate"))
+    }
+    else if(dt.toDateISO(e.field("VisitDate")) > dt.toDateISO(today)) {
+      e.set("DCDate", "")
+    }
+    else if(e.field("DCDate") && dt.toDateISO(e.field("DCDate")) < dt.toDateISO(e.field("VisitDate"))) {
+      cancel()
+      message("Discharge Date cannot be before Visit Date")
+    }
+  },
+  setStatus : function(e) {
+    if(dt.toDateISO(e.field("VisitDate"))>dt.toDateISO(today)) {
+      e.set("Status", "Plan")
+    }
+    else if(dt.toDateISO(e.field("VisitDate"))<=dt.toDateISO(today)) {
+      if((e.field("VisitType")=="OPD" && dt.toDateISO(v.field("DCDate"))==dt.toDateISO(today)) 
+        || (e.field("VisitType")=="Admit" && (!e.field("DCDate") || dt.toDateISO(e.field("DCDate"))>dt.toDateISO(today)))) {
+        e.set("Status", "Active")
       }
-      else {
-        e.set("DCDate", "")
+      else  {
+        e.set("Status", "Done")
       }
     }
   },
@@ -77,10 +93,7 @@ var vs = {
     if(pts.length>0) {
       let p = pts[0]
       let vss = lib().linksTo(p)
-      if(vss.some(v=> {
-        return (v.field("VisitType")=="OPD" && dt.toDateISO(v.field("VisitDate"))==dt.toDateISO(today) && (!v.field("DCDate") || dt.toDateISO(v.field("DCDate"))==dt.toDateISO(today)))
-                || (v.field("VisitType")=="Admit" && dt.toDateISO(v.field("VisitDate"))<=dt.toDateISO(today) && (!v.field("DCDate") || dt.toDateISO(v.field("DCDate"))>dt.toDateISO(today)))
-      })) {
+      if(vss.some(v=> v.field("Status")=="Active")) {
         p.set("Status", "Active")
         p.set("Ward", e.field("Ward"))
       }
