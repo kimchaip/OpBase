@@ -226,7 +226,7 @@ var ob = {
         message("Created New Operation :"+ opt)
       }
     }
-    vs.setBonus(e)
+    this.setBonus(e)
     if(e.field("OpTime") == null) {
       e.set("OpTime", opf.field("OpTimeX"))
     }
