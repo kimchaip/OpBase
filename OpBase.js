@@ -87,6 +87,14 @@ var vs = {
       }
     }
   },
+  setWard : function(e) {
+    if(e.field("VisitType")=="OPD") {
+      e.set("Ward","OPD")
+    }
+    else if(e.field("Ward")=="OPD" || !e.field("Ward")) {
+      e.set("Ward","Uro")
+    }
+  },
   setPtField : function(e) {
     let pts = e.field("Patient")
 
@@ -146,6 +154,7 @@ var tg = {
   vsCreateBefore : function(e) {
     vs.setDCDate(e)
     vs.setStatus(e)
+    vs.setWard(e)
   },
   vsCreateAfter : function(e) {
     vs.setPtField(e)
@@ -153,6 +162,7 @@ var tg = {
   vsUpdateBefore : function(e) {
     vs.setDCDate(e)
     vs.setStatus(e)
+    vs.setWard(e)
   },
   vsUpdateAfter : function(e) {
     vs.setPtField(e)
