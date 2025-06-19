@@ -115,7 +115,221 @@ var vs = {
 
 var ob = {
   name : "OpBase",
-  lib : libByName("OpBase")
+  lib : libByName("OpBase"),
+  validOpDate : function(e) {
+    let v = e.field("Visit") && e.field("Visit").length>0 ? e.field("Visit")[0] : null
+    if(v && dt.toDateISO(e.field("OpDate")) < dt.toDateISO(v.field("VisitDate"))) {
+      cancel()
+      message("Operation Date cannot be Before the Visit Date")
+    }
+  },
+  validDxOp : function(e) {
+    let dxt = e.field("Dx")
+    dxt = dxt.replace(/[-#]/g,"").replace(/\s+/g," ").trim()  // clean up diagnosis
+    if(!dxt) {
+      cancel()
+      message("Diagnosis cannot be empty")
+      return
+    }
+    e.set("Dx", dxt)
+
+    let opt = e.field("Op")
+    opt = opt.replace(/[-#]/g,"").replace(/\s+/g," ").trim()  // clean up operation
+    if(!opt) {
+      cancel()
+      message("Operation cannot be empty")
+      return
+    }
+    e.set("Op", opt)
+  },
+  setOpExtra : function(e) {
+    let holiday = hd.isHoliday(e.field("OpDate")) || e.field("OpDate").getDay() == 0 || e.field("OpDate").getDay() == 6
+    let timeout = e.field("TimeIn")!=null && e.field("TimeIn").getHours() < 8 || e.field("TimeOut")!=null && e.field("TimeOut").getHours() > 16
+    
+    if(holiday || timeout) {
+      e.set("OpExtra", true)
+    }
+    else {
+      e.set("OpExtra", false)
+    }
+  },
+  setX15 : function(e) {
+    if(e.field("Dx").search(/\b(rc|uc|vc|stone|calculi)\b/i)>-1 || e.field("Op").search(/(\b(rirs|cl|ursl|pcnl|spl|pccl|stone)\b|litho)/i)>-1) {
+      e.set("X1.5", true)
+    }
+    else {
+      e.set("X1.5", false)
+    }
+  },
+  setOpTime : function(e) {
+    if(e.field("TimeIn")!=null && e.field("TimeOut")!=null) {
+      if(e.field("TimeOut") >= e.field("TimeIn")) {
+        e.set("OpTime", e.field("TimeOut") - e.field("TimeIn"))
+      }
+      else if(e.field("TimeIn") > e.field("TimeOut")) {
+        e.set("OpTime", 86400000-(e.field("TimeIn") - e.field("TimeOut")))
+      }
+    }
+    else {
+      e.set("OpTime", null)
+    }
+  },
+  setDxOpLink : function(e) {
+    let dxt = e.field("Dx")
+    let opt = e.field("Op")
+    let dxf = dx.lib.findByKey(dxt+" -> "+opt)
+    let opf = op.lib.findByKey(opt)
+
+    if(dxf) {  // valid diagnosis
+      if(!e.field("DxOpList") || !e.field("DxOpList").length) {  // no DxOpList field
+        e.set("DxOpList", dxf.name)
+        dxf.set("Count", dxf.field("Count")+1)  // increment count
+        message("Incremented Diagnosis Count :"+ dxt+" -> "+opt)
+      }
+      else if(e.field("DxOpList")[0].name != dxf.name) {  // DxOpList field exists but different
+        let oldDx = e.field("DxOpList")[0].name.split(" -> ")  // get old diagnosis
+        if(dx.delete(oldDx[0], oldDx[1])) {  // delete old diagnosis
+          message("Deleted Old Diagnosis :"+ oldDx[0]+" -> "+oldDx[1])
+        }
+        e.set("DxOpList", dxf.name)
+        dxf.set("Count", dxf.field("Count")+1)  // increment count
+        message("Incremented Diagnosis Count :"+ dxt+" -> "+opt)
+      }
+    }
+    else {    // invalid diagnosis
+      dxf = dx.create(dxt, opt)   // create new diagnosis
+      if(dxf) {
+        e.set("DxOpList", dxf.name)
+        message("Created New Diagnosis :"+ dxt+" -> "+opt)
+      }
+    }
+    if(opf) {  // valid operation
+      if(!e.field("OperationList") || !e.field("OperationList").length) {  // no OperationList field
+        e.set("OperationList", opf.name)
+        opf.set("Count", opf.field("Count")+1)  // increment count
+        message("Incremented Operation Count :"+ opf.name)
+      }
+      else if(e.field("OperationList")[0].name != opf.name) {  // OperationList field exists but different
+        let oldOp = e.field("OperationList")[0].name  // get old operation
+        if(op.delete(oldOp)) {  // delete old operation
+          message("Deleted Old Operation :"+ oldOp)
+        }
+        e.set("OperationList", opf.name)
+        opf.set("Count", opf.field("Count")+1)  // increment count
+        message("Incremented Operation Count :"+ opf.name)
+      }
+    }
+    else {  // invalid operation
+      opf = op.create(opt,e.field("OpTime"))  // create new operation
+      if(opf) {
+        e.set("OperationList", opf.name)
+        message("Created New Operation :"+ opt)
+      }
+    }
+    vs.setBonus(e)
+    if(e.field("OpTime") == null) {
+      e.set("OpTime", opf.field("OpTimeX"))
+    }
+  },
+  setBonus : function(e) {
+    let opf = e.field("OperationList") && e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
+    if(opf) {
+      if(e.field("OpExtra")) {
+        if(e.field("X1.5")) {
+          e.set("Bonus", opf.field("PriceExtra"))
+        }
+        else {
+          e.set("Bonus", opf.field("Price"))
+        }
+      }
+      else {
+        e.set("Bonus", 0)
+      }
+    }
+  }
+}
+
+var dx = {
+  name : "DxOpList",
+  lib : libByName("DxOpList"),
+  create : function(dx, op) {
+    let o = new Object()
+    o["Dx"] = dx
+    o["Op"] = op
+    o["Count"] = 1
+    return this.lib.create(o)
+  },
+  delete : function(dx, op) {
+    let dxf = this.lib.findByKey(dx+" -> "+op)
+    if(dxf) {
+      if(dxf.field("Count")>1) {
+        dxf.set("Count", dxf.field("Count")-1)
+      }
+      else {
+        dxf.trash()
+      }
+      return true
+    }
+    else {
+      return false
+    }
+  }
+}
+
+var op = {
+  name : "OperationList",
+  lib : libByName("OperationList"),
+  create : function(op,optime) {
+    let o = new Object()
+    o["OpFill"] = op
+    o["Price"] = 0
+    o["PriceExtra"] = 0
+    o["Count"] = 1
+    o["OpTimeX"] = optime
+    return this.lib.create(o)
+  },
+  delete : function(op) {
+    let opf = this.lib.findByKey(op)
+    if(opf) {
+      if(opf.field("Count")>1) {
+        opf.set("Count", opf.field("Count")-1)
+      }
+      else {
+        opf.trash()
+      }
+      return true
+    }
+    else {
+      return false
+    }
+  }
+}
+
+var hd = {
+  name : "Holidays",
+  lib : libByName("Holidays"),
+  isHoliday : function(date) {
+    if(dt.isDate(date)) {
+      let hds = this.lib.entries()
+      return hds.some(h => {
+        return dt.toDateISO(h.field("Date")) == dt.toDateISO(date) && h.field("Holiday")
+      })
+    }
+    else {
+      return false
+    }
+  },
+  getEntries : function(date) {
+    if(dt.isDate(date)) {
+      let hds = this.lib.entries()
+      return hds.filter(h => {
+        return dt.toDateISO(h.field("Date")) == dt.toDateISO(date)
+      })
+    }
+    else {
+      return []
+    }
+  }
 }
 
 var old = {
@@ -124,9 +338,25 @@ var old = {
     let ov = o?o.field(f):null
     let ev = e.field(f)
 
-    if(f.includes("Date") || f.includes("DOB")) {
+    // Handle special cases for date fields
+    if(dt.isDate(ov)) {
       ov = dt.toDateISO(ov)
+    }
+    else if(Array.isArray(ov)) {
+      ov = ov.map(v => v.name).sort().join(",")
+    }
+    else if(typeof ov == "object" && ov != null) {
+      ov = JSON.stringify(ov)
+    }
+
+    if(dt.isDate(ev)) {
       ev = dt.toDateISO(ev)
+    }
+    else if(Array.isArray(ev)) {
+      ev = ev.map(v => v.name).sort().join(",")
+    }
+    else if(typeof ev == "object" && ev != null) {
+      ev = JSON.stringify(ev)
     }
 
     if(ev && ov) {
@@ -168,10 +398,22 @@ var tg = {
     vs.setPtField(e)
   },
   obCreateBefore : function(e) {
+    ob.validOpDate(e) // validate OpDate field
+    ob.validDxOp(e)  // validate Dx and Op fields
+    ob.setOpExtra(e)  // set OpExtra field based on OpDate
+    ob.setX15(e)  // set X1.5 field based on Dx and Op
+    ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
+    ob.setDxOpLink(e) // set DxOpList and OperationList fields
   },
   obCreateAfter : function(e) {
   },
   obUpdateBefore : function(e) {
+    ob.validOpDate(e) // validate OpDate field
+    ob.validDxOp(e)  // validate Dx and Op fields
+    ob.setOpExtra(e)  // set OpExtra field based on OpDate
+    ob.setX15(e)  // set X1.5 field based on Dx and Op
+    ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
+    ob.setDxOpLink(e)  // set DxOpList and OperationList fields
   },
   obUpdateAfter : function(e) {
   },
