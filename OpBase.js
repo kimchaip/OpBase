@@ -78,7 +78,7 @@ var vs = {
       e.set("Status", "Plan")
     }
     else if(dt.toDateISO(e.field("VisitDate"))<=dt.toDateISO(today)) {
-      if((e.field("VisitType")=="OPD" && dt.toDateISO(v.field("DCDate"))==dt.toDateISO(today)) 
+      if((e.field("VisitType")=="OPD" && dt.toDateISO(e.field("DCDate"))==dt.toDateISO(today)) 
         || (e.field("VisitType")=="Admit" && (!e.field("DCDate") || dt.toDateISO(e.field("DCDate"))>dt.toDateISO(today)))) {
         e.set("Status", "Active")
       }
