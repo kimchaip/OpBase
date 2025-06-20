@@ -183,8 +183,8 @@ var ob = {
     if(dxf) {  // valid diagnosis
       if(!e.field("DxOpList") || !e.field("DxOpList").length) {  // no DxOpList field
         e.set("DxOpList", dxf.name)
-        dxf.set("Count", dxf.field("Count")+1)  // increment count
-        message("Incremented Diagnosis Count :"+ dxt+" -> "+opt)
+        dx.setCount(dxf)  // update count
+        message("Update Diagnosis Count :"+ dxt+" -> "+opt)
       }
       else if(e.field("DxOpList")[0].name != dxf.name) {  // DxOpList field exists but different
         let oldDx = e.field("DxOpList")[0].name.split(" -> ")  // get old diagnosis
@@ -192,8 +192,8 @@ var ob = {
           message("Deleted Old Diagnosis :"+ oldDx[0]+" -> "+oldDx[1])
         }
         e.set("DxOpList", dxf.name)
-        dxf.set("Count", dxf.field("Count")+1)  // increment count
-        message("Incremented Diagnosis Count :"+ dxt+" -> "+opt)
+        dx.setCount(dxf)  // update count
+        message("Update Diagnosis Count :"+ dxt+" -> "+opt)
       }
     }
     else {    // invalid diagnosis
@@ -216,8 +216,8 @@ var ob = {
     if(opf) {  // valid operation
       if(!e.field("OperationList") || !e.field("OperationList").length) {  // no OperationList field
         e.set("OperationList", opf.name)
-        opf.set("Count", opf.field("Count")+1)  // increment count
-        message("Incremented Operation Count :"+ opf.name)
+        op.setCount(opf)  // update count
+        message("Update Operation Count :"+ opf.name)
       }
       else if(e.field("OperationList")[0].name != opf.name) {  // OperationList field exists but different
         let oldOp = e.field("OperationList")[0].name  // get old operation
@@ -225,8 +225,8 @@ var ob = {
           message("Deleted Old Operation :"+ oldOp)
         }
         e.set("OperationList", opf.name)
-        opf.set("Count", opf.field("Count")+1)  // increment count
-        message("Incremented Operation Count :"+ opf.name)
+        op.setCount(opf)  // update count
+        message("Update Operation Count :"+ opf.name)
       }
     }
     else {  // invalid operation
@@ -281,6 +281,7 @@ var dx = {
   },
   delete : function(dx, op) {
     let dxf = this.lib.findByKey(dx+" -> "+op)
+    this.setCount(dxf)  // update count before deleting
     if(dxf) {
       if(dxf.field("Count")>1) {
         dxf.set("Count", dxf.field("Count")-1)
@@ -292,6 +293,15 @@ var dx = {
     }
     else {
       return false
+    }
+  },
+  setCount : function(e) {
+    let child = ob.lib.linksTo(e)
+    if(child) {
+      e.set("Count", child.length)
+    }
+    else {
+      e.set("Count", 0)
     }
   }
 }
@@ -321,6 +331,15 @@ var op = {
     }
     else {
       return false
+    }
+  },
+  setCount : function(e) {
+    let child = ob.lib.linksTo(e)
+    if(child) {
+      e.set("Count", child.length)
+    }
+    else {
+      e.set("Count", 0)
     }
   }
 }
