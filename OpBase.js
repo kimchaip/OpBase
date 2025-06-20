@@ -199,8 +199,18 @@ var ob = {
     else {    // invalid diagnosis
       dxf = dx.create(dxt, opt)   // create new diagnosis
       if(dxf) {
-        e.set("DxOpList", dxf.name)
-        message("Created New Diagnosis :"+ dxt+" -> "+opt)
+        if(!e.field("DxOpList") || !e.field("DxOpList").length) {  // no DxOpList field
+          e.set("DxOpList", dxf.name)
+          message("Created New Diagnosis :"+ dxt+" -> "+opt)
+        }
+        else {  // DxOpList field exists but different
+          let oldDx = e.field("DxOpList")[0].name.split(" -> ")  // get old diagnosis
+          if(dx.delete(oldDx[0], oldDx[1])) {  // delete old diagnosis
+            message("Deleted Old Diagnosis :"+ oldDx[0]+" -> "+oldDx[1])
+          }
+          e.set("DxOpList", dxf.name)
+          message("Created New Diagnosis :"+ dxt+" -> "+opt)
+        }
       }
     }
     if(opf) {  // valid operation
@@ -222,8 +232,18 @@ var ob = {
     else {  // invalid operation
       opf = op.create(opt,e.field("OpTime"))  // create new operation
       if(opf) {
-        e.set("OperationList", opf.name)
-        message("Created New Operation :"+ opt)
+        if(!e.field("OperationList") || !e.field("OperationList").length) {  // no OperationList field
+          e.set("OperationList", opf.name)
+          message("Created New Operation :"+ opt)
+        }
+        else {  // OperationList field exists but different
+          let oldOp = e.field("OperationList")[0].name  // get old operation
+          if(op.delete(oldOp)) {  // delete old operation
+            message("Deleted Old Operation :"+ oldOp)
+          }
+          e.set("OperationList", opf.name)
+          message("Created New Operation :"+ opt)
+        }
       }
     }
     this.setBonus(e)
