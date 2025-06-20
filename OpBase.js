@@ -320,6 +320,7 @@ var op = {
   },
   delete : function(op) {
     let opf = this.lib.findByKey(op)
+    this.setCount(opf)  // update count before deleting
     if(opf) {
       if(opf.field("Count")>1) {
         opf.set("Count", opf.field("Count")-1)
