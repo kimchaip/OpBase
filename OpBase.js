@@ -181,68 +181,48 @@ var ob = {
     let opf = op.lib.findByKey(opt)
 
     if(dxf) {  // valid diagnosis
-      if(!e.field("DxOpList") || !e.field("DxOpList").length) {  // no DxOpList field
-        e.set("DxOpList", dxf.name)
-        dx.setCount(dxf)  // update count
-        message("Update Diagnosis Count :"+ dxt+" -> "+opt)
+      if(e.field("DxOpList").length==0) {  // no DxOpList field
+        e.set("DxOpList", dxf.name)   // set new diagnosis
+        dx.effect(dxf)    // update count of new diagnosis
       }
       else if(e.field("DxOpList")[0].name != dxf.name) {  // DxOpList field exists but different
-        let oldDx = e.field("DxOpList")[0].name.split(" -> ")  // get old diagnosis
-        if(dx.delete(oldDx[0], oldDx[1])) {  // delete old diagnosis
-          message("Deleted Old Diagnosis :"+ oldDx[0]+" -> "+oldDx[1])
-        }
-        e.set("DxOpList", dxf.name)
-        dx.setCount(dxf)  // update count
-        message("Update Diagnosis Count :"+ dxt+" -> "+opt)
+        let dxo = e.field("DxOpList")[0]  // get old diagnosis
+        e.set("DxOpList", dxf.name)   // set new diagnosis
+        dx.effect(dxf)    // update count of new diagnosis
+        dx.effect(dxo)    // update count of old diagnosis
       }
     }
     else {    // invalid diagnosis
       dxf = dx.create(dxt, opt)   // create new diagnosis
       if(dxf) {
-        if(!e.field("DxOpList") || !e.field("DxOpList").length) {  // no DxOpList field
-          e.set("DxOpList", dxf.name)
-          message("Created New Diagnosis :"+ dxt+" -> "+opt)
-        }
-        else {  // DxOpList field exists but different
-          let oldDx = e.field("DxOpList")[0].name.split(" -> ")  // get old diagnosis
-          if(dx.delete(oldDx[0], oldDx[1])) {  // delete old diagnosis
-            message("Deleted Old Diagnosis :"+ oldDx[0]+" -> "+oldDx[1])
-          }
-          e.set("DxOpList", dxf.name)
-          message("Created New Diagnosis :"+ dxt+" -> "+opt)
+        let dxo = e.field("DxOpList").length>0 ? e.field("DxOpList")[0] : null    // get old diagnosis
+        e.set("DxOpList", dxf.name)   // set new diagnosis
+        dx.effect(dxf)    // update count of new diagnosis
+        if(dxo) {  //  DxOpList field exists
+          dx.setCount(dxo)  // update count of old diagnosis
         }
       }
     }
     if(opf) {  // valid operation
-      if(!e.field("OperationList") || !e.field("OperationList").length) {  // no OperationList field
-        e.set("OperationList", opf.name)
-        op.setCount(opf)  // update count
-        message("Update Operation Count :"+ opf.name)
+      if(e.field("OperationList").length==0) {  // no OperationList field
+        e.set("OperationList", opf.name)    // set new operation
+        op.effect(opf)    // update count of new operation
       }
       else if(e.field("OperationList")[0].name != opf.name) {  // OperationList field exists but different
-        let oldOp = e.field("OperationList")[0].name  // get old operation
-        if(op.delete(oldOp)) {  // delete old operation
-          message("Deleted Old Operation :"+ oldOp)
-        }
-        e.set("OperationList", opf.name)
-        op.setCount(opf)  // update count
-        message("Update Operation Count :"+ opf.name)
+        let oldOp = e.field("OperationList")[0]  // get old operation
+        e.set("OperationList", opf.name)    // set new operation
+        op.effect(opf)    // update count of new operation
+        op.effect(oldOp)    // update count of old operation
       }
     }
     else {  // invalid operation
       opf = op.create(opt,e.field("OpTime"))  // create new operation
       if(opf) {
-        if(!e.field("OperationList") || !e.field("OperationList").length) {  // no OperationList field
-          e.set("OperationList", opf.name)
-          message("Created New Operation :"+ opt)
-        }
-        else {  // OperationList field exists but different
-          let oldOp = e.field("OperationList")[0].name  // get old operation
-          if(op.delete(oldOp)) {  // delete old operation
-            message("Deleted Old Operation :"+ oldOp)
-          }
-          e.set("OperationList", opf.name)
-          message("Created New Operation :"+ opt)
+        let oldOp = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null  // get old operation
+        e.set("OperationList", opf.name)    // set new operation
+        op.effect(opf)    //
+        if(oldOp) {  // OperationList field exists
+          op.effect(oldOp)  // update count of old operation
         }
       }
     }
@@ -276,32 +256,20 @@ var dx = {
     let o = new Object()
     o["Dx"] = dx
     o["Op"] = op
-    o["Count"] = 1
     return this.lib.create(o)
   },
-  delete : function(dx, op) {
-    let dxf = this.lib.findByKey(dx+" -> "+op)
-    this.setCount(dxf)  // update count before deleting
-    if(dxf) {
-      if(dxf.field("Count")>1) {
-        dxf.set("Count", dxf.field("Count")-1)
-      }
-      else {
-        dxf.trash()
-      }
-      return true
-    }
-    else {
-      return false
-    }
-  },
-  setCount : function(e) {
+  effect : function(e) {
     let child = ob.lib.linksTo(e)
-    if(child) {
+    if(child.length > 0) {
       e.set("Count", child.length)
     }
     else {
       e.set("Count", 0)
+    }
+    // If count is zero, delete the diagnosis
+    if(e.field("Count") == 0) {
+      e.trash()  // delete diagnosis if count is zero
+      message("Deleted Diagnosis :"+ e.field("Dx")+" -> "+e.field("Op"))
     }
   }
 }
@@ -312,35 +280,38 @@ var op = {
   create : function(op,optime) {
     let o = new Object()
     o["OpFill"] = op
-    o["Price"] = 0
-    o["PriceExtra"] = 0
-    o["Count"] = 1
-    o["OpTimeX"] = optime
     return this.lib.create(o)
   },
-  delete : function(op) {
-    let opf = this.lib.findByKey(op)
-    this.setCount(opf)  // update count before deleting
-    if(opf) {
-      if(opf.field("Count")>1) {
-        opf.set("Count", opf.field("Count")-1)
+  effect : function(e) {
+    let child = ob.lib.linksTo(e)
+    if(child.length > 0) {
+      e.set("Count", child.length)
+      // Calculate average operation time
+      let n = 0
+      let totalTime = child.reduce((sum, op) => {
+        if(op.field("TimeIn") != null && op.field("TimeOut") != null && op.field("OpTime")) {
+          n += 1
+          return sum + op.field("OpTime")
+        }
+        else {
+          return sum
+        }
+      }, 0)
+      if(n > 0) {
+        totalTime = Math.round(totalTime / n)  // average time
       }
       else {
-        opf.trash()
+        totalTime = 0
       }
-      return true
-    }
-    else {
-      return false
-    }
-  },
-  setCount : function(e) {
-    let child = ob.lib.linksTo(e)
-    if(child) {
-      e.set("Count", child.length)
+      e.set("OpTimeX", totalTime)  // set average operation time
     }
     else {
       e.set("Count", 0)
+    }
+    // If count is zero, delete the operation
+    if(e.field("Count") == 0) {
+      e.trash()  // delete operation if count is zero
+      message("Deleted Operation :"+ e.field("OpFill"))
     }
   }
 }
