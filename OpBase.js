@@ -74,16 +74,18 @@ var vs = {
     }
   },
   setStatus : function(e) {
-    if(dt.toDateISO(e.field("VisitDate"))>dt.toDateISO(today)) {
-      e.set("Status", "Plan")
-    }
-    else if(dt.toDateISO(e.field("VisitDate"))<=dt.toDateISO(today)) {
-      if((e.field("VisitType")=="OPD" && dt.toDateISO(e.field("DCDate"))==dt.toDateISO(today)) 
-        || (e.field("VisitType")=="Admit" && (!e.field("DCDate") || dt.toDateISO(e.field("DCDate"))>dt.toDateISO(today)))) {
-        e.set("Status", "Active")
+    if(e.field("Status") != "Not") {
+      if(dt.toDateISO(e.field("VisitDate"))>dt.toDateISO(today)) {
+        e.set("Status", "Plan")
       }
-      else  {
-        e.set("Status", "Done")
+      else if(dt.toDateISO(e.field("VisitDate"))<=dt.toDateISO(today)) {
+        if((e.field("VisitType")=="OPD" && dt.toDateISO(e.field("DCDate"))==dt.toDateISO(today)) 
+          || (e.field("VisitType")=="Admit" && (!e.field("DCDate") || dt.toDateISO(e.field("DCDate"))>dt.toDateISO(today)))) {
+          e.set("Status", "Active")
+        }
+        else  {
+          e.set("Status", "Done")
+        }
       }
     }
   },
@@ -244,6 +246,32 @@ var ob = {
       }
       else {
         e.set("Bonus", 0)
+      }
+    }
+  },
+  setStatus : function(e) {
+    if(e.field("OpNote").search(/ไม่ทำ/)>-1) {
+      e.set("Status", "Not")
+      // If operation is Not, set visit status to Not
+      let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
+      if(v) {
+        v.set("Status", "Not")
+        v.set("DCDate", null)  // clear discharge date
+        let p = v.field("Patient").length>0 ? v.field("Patient")[0] : null
+        if(p && p.field("Status") == "Active") {    // if this is the last visit
+          p.set("Status", "Still")  //  set patient status to Still
+        }
+      }
+    }
+    else if(e.field("OpNote").search(/งด[^\u0E30-\u0E39]/)>-1) {
+      e.set("Status", "Not")
+    }
+    else if(e.field("OpDate") && dt.toDateISO(e.field("OpDate")) > dt.toDateISO(today)) {
+      e.set("Status", "Plan")
+    }
+    else if(e.field("OpDate") && dt.toDateISO(e.field("OpDate")) <= dt.toDateISO(today)) {
+      if(e.field("OpNote")) {
+        e.set("Status", "Done")
       }
     }
   }
@@ -414,7 +442,8 @@ var tg = {
     ob.setOpExtra(e)  // set OpExtra field based on OpDate
     ob.setX15(e)  // set X1.5 field based on Dx and Op
     ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
-    ob.setDxOpLink(e) // set DxOpList and OperationList fields
+    ob.setDxOpLink(e) // set DxOpList and OperationList fields based on Dx and Op
+    ob.setStatus(e)  // set Status field based on OpNote and OpDate
   },
   obCreateAfter : function(e) {
   },
@@ -424,7 +453,8 @@ var tg = {
     ob.setOpExtra(e)  // set OpExtra field based on OpDate
     ob.setX15(e)  // set X1.5 field based on Dx and Op
     ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
-    ob.setDxOpLink(e)  // set DxOpList and OperationList fields
+    ob.setDxOpLink(e)  // set DxOpList and OperationList fields based on Dx and Op
+    ob.setStatus(e)  // set Status field based on OpNote and OpDate
   },
   obUpdateAfter : function(e) {
   },
