@@ -201,7 +201,7 @@ var ob = {
         e.set("DxOpList", dxf.name)   // set new diagnosis
         dx.effect(dxf)    // update count of new diagnosis
         if(dxo) {  //  DxOpList field exists
-          dx.setCount(dxo)  // update count of old diagnosis
+          dx.effect(dxo)  // update count of old diagnosis
         }
       }
     }
