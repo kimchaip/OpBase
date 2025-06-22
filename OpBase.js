@@ -336,8 +336,8 @@ var dx = {
   },
   effect : function(e) {
     this.getChild(e)
-    if(child.length > 0) {
-      e.set("Count", child.length)
+    if(this.child.length > 0) {
+      e.set("Count", this.child.length)
     }
     else {
       e.set("Count", 0)
