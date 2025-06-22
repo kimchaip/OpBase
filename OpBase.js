@@ -359,7 +359,10 @@ var dx = {
   getVStypeByDx : function(e) {
     if(this[e.name].length > 0) {
       let group = {}
-      this[e.name].forEach(o => group[o.field("VisitType")] = (group[o.field("VisitType")] || 0) + 1)
+      this[e.name].forEach(o => {
+        let vstype = o.field("Visit").lenght>0?o.field("Visit")[0].field("VisitType"):""
+        group[vstype] = (group[vstype] || 0) + 1
+      })
       return group["OPD"]>group["Admit"] ? "OPD" : "Admit"
     }
     else {
