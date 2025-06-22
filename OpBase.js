@@ -304,8 +304,8 @@ var ob = {
     }
   },
   setOpType : function(e) {
-    if(op.child.length>0 && !old.isChange(this.lib, e, "OpType")) {   // if Op changed but OpType not
-      let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
+    let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
+    if(opf && opf.field("OpFill") in op && op[opf.field("OpFill")].length>0 && !old.isChange(this.lib, e, "OpType")) {   // if Op changed but OpType not
       let optype = op.getOptypeByOp(opf)
       log(optype+" Operation Type for "+opf.field("OpFill"))
       if(optype) {
@@ -321,7 +321,6 @@ var ob = {
 var dx = {
   name : "DxOpList",
   lib : libByName("DxOpList"),
-  child : [],
   create : function(dx, op) {
     let o = new Object()
     o["Dx"] = dx
@@ -329,12 +328,12 @@ var dx = {
     return this.lib.create(o)
   },
   getChild : function(e) {
-    this.child = ob.lib.linksTo(e)
+    this[e.field("Dx")+" -> "+e.field("Op")] = ob.lib.linksTo(e)
   },
   effect : function(e) {
     this.getChild(e)
-    if(this.child.length > 0) {
-      e.set("Count", this.child.length)
+    if(this[e.field("Dx")+" -> "+e.field("Op")].length > 0) {
+      e.set("Count", this[e.field("Dx")+" -> "+e.field("Op")].length)
     }
     else {
       e.set("Count", 0)
@@ -350,22 +349,21 @@ var dx = {
 var op = {
   name : "OperationList",
   lib : libByName("OpList"),
-  child : [],
   create : function(op,optime) {
     let o = new Object()
     o["OpFill"] = op
     return this.lib.create(o)
   },
   getChild : function(e) {
-    this.child = ob.lib.linksTo(e)
+    this[e.field("OpFill")] = ob.lib.linksTo(e)   // get child operations for this operation
   },
   effect : function(e) {
     this.getChild(e)  // get child operations
-    if(this.child.length > 0) {
-      e.set("Count", this.child.length)
+    if(this[e.field("OpFill")].length > 0) {
+      e.set("Count", this[e.field("OpFill")].length)
       // Calculate average operation time
       let n = 0
-      let totalTime = this.child.reduce((sum, op) => {
+      let totalTime = this[e.field("OpFill")].reduce((sum, op) => {
         if(op.field("TimeIn") != null && op.field("TimeOut") != null && op.field("OpTime")) {
           n += 1
           return sum + op.field("OpTime")
@@ -392,9 +390,9 @@ var op = {
     }
   },
   getOptypeByOp : function(e) {
-    if(this.child.length > 0) {
+    if(this[e.field("OpFill")].length > 0) {
       let group = {}
-      this.child.forEach(o => group[o.field("OpType")] = (group[o.field("OpType")] || 0) + 1)
+      this[e.field("OpFill")].forEach(o => group[o.field("OpType")] = (group[o.field("OpType")] || 0) + 1)
       log("Operation Type Group: "+JSON.stringify(group))
       return group["LA"]>group["GA"] ? "LA" : "GA"
     }
