@@ -304,7 +304,7 @@ var ob = {
     }
   },
   setOpType : function(e) {
-    if(old.isChange(this.lib, e, "Op") && !old.isChange(this.lib, e, "OpType")) {   // if Op changed but OpType not
+    if(op.child.length>0 && !old.isChange(this.lib, e, "OpType")) {   // if Op changed but OpType not
       let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
       let optype = op.getOptypeByOp(opf)
       log(optype+" Operation Type for "+opf.field("OpFill"))
