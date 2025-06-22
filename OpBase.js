@@ -283,7 +283,7 @@ var ob = {
         e.set("Status", "Done")
       }
     }
-
+    log(oldStatus+","+e.field("Status"))
     if(oldStatus!=e.field("Status") && oldStatus == "Not") {    // if status changed from Not
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
       if(v) {
