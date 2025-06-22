@@ -517,4 +517,24 @@ var tg = {
   },
   obUpdateAfter : function(e) {
   },
+  dxCreateBefore : function(e) {
+    dx.effect(e)  // update count of diagnosis
+  },
+  dxCreateAfter : function(e) {
+  },
+  dxUpdateBefore : function(e) {
+    dx.effect(e)  // update count of diagnosis
+  },
+  dxUpdateAfter : function(e) {
+  },
+  opCreateBefore : function(e) {
+    op.effect(e)  // update count of operation and average operation time
+  },
+  opCreateAfter : function(e) {
+  },
+  opUpdateBefore : function(e) {
+    op.effect(e)  // update count of operation and average operation time
+  },
+  opUpdateAfter : function(e) {
+  }
 }
