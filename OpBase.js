@@ -271,7 +271,7 @@ var ob = {
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
       if(v) {
         v.set("Status", "Not")
-        v.set("Rx", v.field("Rx")+"\n"+dt.toDateShort(today)+e.field("OpNote"))  // set visit Rx to OpNote
+        v.set("Rx", v.field("Rx")+(v.field("Rx")?"\n":"")+dt.toDateShort(today)+e.field("OpNote"))  // set visit Rx to OpNote
         v.set("DCDate", null)           // clear discharge date
         let p = v.field("Patient").length>0 ? v.field("Patient")[0] : null
         if(p) {                         // if this is the last visit
@@ -296,7 +296,7 @@ var ob = {
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
       if(v) {
         v.set("Status", null)       // set visit status to null
-        v.set("Rx", v.field("Rx").replace(/\n*.*ไม่ทำ.*/,""))             // clear visit Rx
+        v.set("Rx", v.field("Rx").replace(/\n*.*ไม่ทำ.*/,""))  // clear visit Rx
         vs.setStatus(v)             // set visit status
       }
     }
