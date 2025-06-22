@@ -281,6 +281,8 @@ var ob = {
         e.set("Status", "Done")
       }
     }
+    log(e.field("OpNote")+","+dt.toDateISO(e.field("OpDate"))+","+dt.toDateISO(today)+","+e.field("Status"))
+    
     if(old.isChange(this.lib, e, "Status") && old.Status == "Not") {    // if status changed from Not
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
       if(v) {
