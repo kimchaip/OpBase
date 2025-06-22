@@ -303,7 +303,21 @@ var ob = {
       }
     }
   },
-
+  setOpType : function(e) {
+    let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
+    if(opf) {
+      let optype = op.getOptypeByOp(opf)
+      if(optype) {
+        e.set("OpType", optype)
+      }
+      else {
+        e.set("OpType", "GA")  // default to GA if no operation type found
+      }
+    }
+    else {
+      e.set("OpType", "GA")  // default to GA if no operation found
+    }
+  }
 }
 
 var dx = {
@@ -334,18 +348,19 @@ var dx = {
 var op = {
   name : "OperationList",
   lib : libByName("OpList"),
+  child : [],
   create : function(op,optime) {
     let o = new Object()
     o["OpFill"] = op
     return this.lib.create(o)
   },
   effect : function(e) {
-    let child = ob.lib.linksTo(e)
-    if(child.length > 0) {
-      e.set("Count", child.length)
+    this.child = ob.lib.linksTo(e)
+    if(this.child.length > 0) {
+      e.set("Count", this.child.length)
       // Calculate average operation time
       let n = 0
-      let totalTime = child.reduce((sum, op) => {
+      let totalTime = this.child.reduce((sum, op) => {
         if(op.field("TimeIn") != null && op.field("TimeOut") != null && op.field("OpTime")) {
           n += 1
           return sum + op.field("OpTime")
@@ -369,6 +384,16 @@ var op = {
     if(e.field("Count") == 0) {
       e.trash()  // delete operation if count is zero
       message("Deleted Operation :"+ e.field("OpFill"))
+    }
+  },
+  getOptypeByOp : function(e) {
+    if(this.child.length > 0) {
+      let group = {}
+      this.child.forEach(o => group[o.field("OpType")] = (group[o.field("OpType")] || 0) + 1)
+      return group["LA"]>group["GA"] ? "LA" : "GA"
+    }
+    else {
+      return null
     }
   }
 }
@@ -469,6 +494,7 @@ var tg = {
   obCreateBefore : function(e) {
     ob.validOpDate(e) // validate OpDate field
     ob.validDxOp(e)  // validate Dx and Op fields
+    ob.setOpType(e)  // set OpType field based on OperationList
     ob.setStatus(e)  // set Status field based on OpNote and OpDate
     ob.setOpExtra(e)  // set OpExtra field based on OpDate
     ob.setX15(e)  // set X1.5 field based on Dx and Op
@@ -481,6 +507,7 @@ var tg = {
   obUpdateBefore : function(e) {
     ob.validOpDate(e) // validate OpDate field
     ob.validDxOp(e)  // validate Dx and Op fields
+    ob.setOpType(e)  // set OpType field based on OperationList
     ob.setStatus(e)  // set Status field based on OpNote and OpDate
     ob.setOpExtra(e)  // set OpExtra field based on OpDate
     ob.setX15(e)  // set X1.5 field based on Dx and Op
