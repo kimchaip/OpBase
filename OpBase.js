@@ -271,7 +271,7 @@ var ob = {
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
       if(v) {
         v.set("Status", "Not")
-        if(v.field("OpNote") && v.field("OpNote").search(/\n*.*ไม่ทำ.*/)==-1) {
+        if(v.field("Rx") && v.field("Rx").search(/\n*.*ไม่ทำ.*/)==-1) {
           v.set("Rx", v.field("Rx")+(v.field("Rx")?"\n":"")+dt.toDateShort(today)+e.field("OpNote"))  // set visit Rx to OpNote
         }
         v.set("DCDate", null)           // clear discharge date
