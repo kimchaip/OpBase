@@ -102,6 +102,7 @@ var vs = {
           e.set("Status", "Done")
         }
       }
+      log(e.field("Status")+","+dt.toDateISO(e.field("VisitDate"))+","+dt.toDateISO(today)+","+dt.toDateISO(e.field("DCDate"))+","+e.field("VisitType"))
     }
   },
   setWard : function(e) {
@@ -281,13 +282,13 @@ var ob = {
         e.set("Status", "Done")
       }
     }
-    log(e.field("OpNote")+","+dt.toDateISO(e.field("OpDate"))+","+dt.toDateISO(today)+","+e.field("Status"))
 
     if(old.isChange(this.lib, e, "Status") && old.Status == "Not") {    // if status changed from Not
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
       if(v) {
         v.set("Status", null)  // set visit status to null
         vs.setStatus(v)  // set visit status
+        log(old.Status+","+v.field("Status"))
       }
     }
   },
