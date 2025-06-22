@@ -306,7 +306,6 @@ var ob = {
   setOpType : function(e) {
     let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
     if(opf) {
-      op.getChild(opf)  // get child operations
       let optype = op.getOptypeByOp(opf)
       log(optype)
       if(optype) {
@@ -325,14 +324,18 @@ var ob = {
 var dx = {
   name : "DxOpList",
   lib : libByName("DxOpList"),
+  child : [],
   create : function(dx, op) {
     let o = new Object()
     o["Dx"] = dx
     o["Op"] = op
     return this.lib.create(o)
   },
+  getChild : function(e) {
+    this.child = ob.lib.linksTo(e)
+  },
   effect : function(e) {
-    let child = ob.lib.linksTo(e)
+    this.getChild(e)
     if(child.length > 0) {
       e.set("Count", child.length)
     }
@@ -360,6 +363,7 @@ var op = {
     this.child = ob.lib.linksTo(e)
   },
   effect : function(e) {
+    op.getChild(opf)  // get child operations
     if(this.child.length > 0) {
       e.set("Count", this.child.length)
       // Calculate average operation time
