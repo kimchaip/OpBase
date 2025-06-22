@@ -307,7 +307,7 @@ var ob = {
     if(old.isChange(this.lib, e, "Op") && !old.isChange(this.lib, e, "OpType")) {   // if Op changed but OpType not
       let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
       let optype = op.getOptypeByOp(opf)
-      log(optype+"Operation Type for "+opf.field("OpFill"))
+      log(optype+" Operation Type for "+opf.field("OpFill"))
       if(optype) {
         e.set("OpType", optype)
       }
@@ -437,6 +437,7 @@ var old = {
     let ov = o?o.field(f):null
     old[f] = ov
     let ev = e.field(f)
+    log("Checking change for "+f+": old value = "+ov+", new value = "+ev)
 
     // Handle special cases for date fields
     if(dt.isDate(ov)) {
