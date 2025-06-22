@@ -306,6 +306,7 @@ var ob = {
   setOpType : function(e) {
     let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
     if(opf) {
+      op.getChild(opf)  // get child operations
       let optype = op.getOptypeByOp(opf)
       log(optype)
       if(optype) {
@@ -355,8 +356,10 @@ var op = {
     o["OpFill"] = op
     return this.lib.create(o)
   },
-  effect : function(e) {
+  getChild : function(e) {
     this.child = ob.lib.linksTo(e)
+  },
+  effect : function(e) {
     if(this.child.length > 0) {
       e.set("Count", this.child.length)
       // Calculate average operation time
