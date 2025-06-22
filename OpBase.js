@@ -395,6 +395,7 @@ var old = {
     let ov = o?o.field(f):null
     old[f] = ov
     let ev = e.field(f)
+    log("old.isChange: "+lib.name+"."+f+" old="+ov+", new="+ev)
 
     // Handle special cases for date fields
     if(dt.isDate(ov)) {
