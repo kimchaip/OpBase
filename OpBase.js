@@ -67,7 +67,7 @@ var pt = {
         e.set("Ward", v.field("Ward"))
       }
       else {
-        p.set("Status", "Still")
+        e.set("Status", "Still")
       }
     }
   }
@@ -287,7 +287,8 @@ var ob = {
         vs.setStatus(v)  // set visit status
       }
     }
-  }
+  },
+
 }
 
 var dx = {
