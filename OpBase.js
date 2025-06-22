@@ -439,22 +439,24 @@ var tg = {
   obCreateBefore : function(e) {
     ob.validOpDate(e) // validate OpDate field
     ob.validDxOp(e)  // validate Dx and Op fields
+    ob.setStatus(e)  // set Status field based on OpNote and OpDate
     ob.setOpExtra(e)  // set OpExtra field based on OpDate
     ob.setX15(e)  // set X1.5 field based on Dx and Op
     ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
     ob.setDxOpLink(e) // set DxOpList and OperationList fields based on Dx and Op
-    ob.setStatus(e)  // set Status field based on OpNote and OpDate
+    
   },
   obCreateAfter : function(e) {
   },
   obUpdateBefore : function(e) {
     ob.validOpDate(e) // validate OpDate field
     ob.validDxOp(e)  // validate Dx and Op fields
+    ob.setStatus(e)  // set Status field based on OpNote and OpDate
     ob.setOpExtra(e)  // set OpExtra field based on OpDate
     ob.setX15(e)  // set X1.5 field based on Dx and Op
     ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
     ob.setDxOpLink(e)  // set DxOpList and OperationList fields based on Dx and Op
-    ob.setStatus(e)  // set Status field based on OpNote and OpDate
+    
   },
   obUpdateAfter : function(e) {
   },
