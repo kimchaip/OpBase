@@ -284,7 +284,7 @@ var ob = {
       }
     }
 
-    if(oldStatus!=e.field("Status") && old.Status == "Not") {    // if status changed from Not
+    if(oldStatus!=e.field("Status") && oldStatus == "Not") {    // if status changed from Not
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
       if(v) {
         v.set("Status", null)  // set visit status to null
