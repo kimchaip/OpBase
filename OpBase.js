@@ -304,9 +304,8 @@ var ob = {
     }
   },
   setOpType : function(e) {
-
-    let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
-    if(opf) {
+    if(old.isChange(this.lib, e, "Op") && !old.isChange(this.lib, e, "OpType")) {   // if Op changed but OpType not
+      let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
       let optype = op.getOptypeByOp(opf)
       log(optype+"Operation Type for "+opf.field("OpFill"))
       if(optype) {
@@ -315,9 +314,6 @@ var ob = {
       else {
         e.set("OpType", "GA")  // default to GA if no operation type found
       }
-    }
-    else {
-      e.set("OpType", "GA")  // default to GA if no operation found
     }
   }
 }
@@ -399,6 +395,7 @@ var op = {
     if(this.child.length > 0) {
       let group = {}
       this.child.forEach(o => group[o.field("OpType")] = (group[o.field("OpType")] || 0) + 1)
+      log("Operation Type Group: "+JSON.stringify(group))
       return group["LA"]>group["GA"] ? "LA" : "GA"
     }
     else {
