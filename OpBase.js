@@ -363,7 +363,7 @@ var op = {
     this.child = ob.lib.linksTo(e)
   },
   effect : function(e) {
-    op.getChild(opf)  // get child operations
+    this.getChild(e)  // get child operations
     if(this.child.length > 0) {
       e.set("Count", this.child.length)
       // Calculate average operation time
