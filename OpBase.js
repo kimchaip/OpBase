@@ -257,6 +257,7 @@ var ob = {
     }
   },
   setStatus : function(e) {
+    let oldStatus = e.field("Status")
     if(e.field("OpNote").search(/ไม่ทำ/)>-1) {
       e.set("Status", "Not")
       // If operation is Not, set visit status to Not
@@ -283,12 +284,12 @@ var ob = {
       }
     }
 
-    if(old.isChange(ob.lib, e, "Status") && old.Status == "Not") {    // if status changed from Not
+    if(oldStatus!=e.field("Status") && old.Status == "Not") {    // if status changed from Not
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
       if(v) {
         v.set("Status", null)  // set visit status to null
         vs.setStatus(v)  // set visit status
-        log(old.Status+","+v.field("Status"))
+        log(oldStatus+","+v.field("Status"))
       }
     }
   },
