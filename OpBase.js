@@ -375,6 +375,7 @@ var old = {
   isChange : function(lib, e, f) {
     let o = lib.findById(e.id)
     let ov = o?o.field(f):null
+    old[f] = ov
     let ev = e.field(f)
 
     // Handle special cases for date fields
