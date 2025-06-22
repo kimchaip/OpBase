@@ -270,7 +270,7 @@ var ob = {
         }
       }
     }
-    else if(e.field("OpNote").search(/งด[^\u0E30-\u0E39]/)>-1) {
+    else if(e.field("OpNote").search(/^ *งด/)>-1) {
       e.set("Status", "Not")
     }
     else if(e.field("OpDate") && dt.toDateISO(e.field("OpDate")) > dt.toDateISO(today)) {
