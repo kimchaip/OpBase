@@ -320,6 +320,7 @@ var ob = {
     if(dxf && dxf.name in dx) {
       let vstype = dx.getVStypeByDx(dxf)
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
+      log("Setting VisitType for "+v.name+" to "+vstype)
       if(vstype && v) {
         v.set("VisitType", vstype)  // set visit type based on diagnosis
         vs.setDCDate(v)
@@ -363,6 +364,7 @@ var dx = {
         let vstype = o.field("Visit").lenght>0?o.field("Visit")[0].field("VisitType"):""
         group[vstype] = (group[vstype] || 0) + 1
       })
+      log("Visit Type Group: "+JSON.stringify(group))
       return group["OPD"]>group["Admit"] ? "OPD" : "Admit"
     }
     else {
