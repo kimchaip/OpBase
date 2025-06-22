@@ -26,6 +26,14 @@ var dt = {
     else {
       return ""
     }
+  },
+  toDateShort : function(date) {
+    if(this.isDate(date)) {
+      return ("0"+date.getDate()).slice(-2)+"."+("0"+(date.getMonth()+1)).slice(-2)+" : "
+    }
+    else {
+      return ""
+    }
   }
 }
 var today = new Date()
@@ -102,7 +110,6 @@ var vs = {
           e.set("Status", "Done")
         }
       }
-      log(e.field("Status")+","+dt.toDateISO(e.field("VisitDate"))+","+dt.toDateISO(today)+","+dt.toDateISO(e.field("DCDate"))+","+e.field("VisitType"))
     }
   },
   setWard : function(e) {
@@ -258,17 +265,18 @@ var ob = {
   },
   setStatus : function(e) {
     let oldStatus = e.field("Status")
-    if(e.field("OpNote").search(/ไม่ทำ/)>-1) {
+    if(e.field("OpNote").search(/^ *ไม่ทำ/)>-1) {
       e.set("Status", "Not")
       // If operation is Not, set visit status to Not
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
       if(v) {
         v.set("Status", "Not")
-        v.set("DCDate", null)  // clear discharge date
+        v.set("Rx", v.field("Rx")+"\n"+dt.toDateShort(today)+e.field("OpNote"))  // set visit Rx to OpNote
+        v.set("DCDate", null)           // clear discharge date
         let p = v.field("Patient").length>0 ? v.field("Patient")[0] : null
-        if(p) {    // if this is the last visit
-          pt.getChild(p)    // get child visits
-          pt.setStatus(p)   // set patient status
+        if(p) {                         // if this is the last visit
+          pt.getChild(p)                // get child visits
+          pt.setStatus(p)               // set patient status
         }
       }
     }
@@ -283,13 +291,13 @@ var ob = {
         e.set("Status", "Done")
       }
     }
-    log(oldStatus+","+e.field("Status"))
+    // If status changed from Not, clear visit Rx and set visit status to null
     if(oldStatus!=e.field("Status") && oldStatus == "Not") {    // if status changed from Not
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
       if(v) {
-        v.set("Status", null)  // set visit status to null
-        vs.setStatus(v)  // set visit status
-        log(oldStatus+","+v.field("Status"))
+        v.set("Status", null)       // set visit status to null
+        v.set("Rx", v.field("Rx").replace(/\n*.*ไม่ทำ.*/,""))             // clear visit Rx
+        vs.setStatus(v)             // set visit status
       }
     }
   },
@@ -396,7 +404,6 @@ var old = {
     let ov = o?o.field(f):null
     old[f] = ov
     let ev = e.field(f)
-    log("old.isChange: "+lib.name+"."+f+" old="+ov+", new="+ev)
 
     // Handle special cases for date fields
     if(dt.isDate(ov)) {
