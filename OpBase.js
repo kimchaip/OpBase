@@ -55,6 +55,21 @@ var pt = {
         e.set("Age", dt.calAge(e.field("DOB")))
       }
     }
+  },
+  getChild : function(e) {
+    this["child"] = vs.lib.linksTo(e)
+  },
+  setStatus : function(e) {
+    if(this.child.length>0) {
+      let v = this.child.find(v=> v.field("Status")=="Active")
+      if(v) {
+        e.set("Status", "Active")
+        e.set("Ward", v.field("Ward"))
+      }
+      else {
+        p.set("Status", "Still")
+      }
+    }
   }
 }
 
@@ -98,19 +113,10 @@ var vs = {
     }
   },
   setPtField : function(e) {
-    let pts = e.field("Patient")
-
-    if(pts.length>0) {
-      let p = pts[0]
-      let vss = lib().linksTo(p)
-      if(vss.some(v=> v.field("Status")=="Active")) {
-        p.set("Status", "Active")
-        p.set("Ward", e.field("Ward"))
-      }
-      else {
-        p.set("Status", "Still")
-        p.set("Ward", "")
-      }
+    let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
+    if(p) {
+      pt.getChild(p)
+      pt.setStatus(p)
     }
   }
 }
@@ -258,8 +264,9 @@ var ob = {
         v.set("Status", "Not")
         v.set("DCDate", null)  // clear discharge date
         let p = v.field("Patient").length>0 ? v.field("Patient")[0] : null
-        if(p && p.field("Status") == "Active") {    // if this is the last visit
-          p.set("Status", "Still")  //  set patient status to Still
+        if(p) {    // if this is the last visit
+          pt.getChild(p)    // get child visits
+          pt.setStatus(p)   // set patient status
         }
       }
     }
@@ -272,6 +279,12 @@ var ob = {
     else if(e.field("OpDate") && dt.toDateISO(e.field("OpDate")) <= dt.toDateISO(today)) {
       if(e.field("OpNote")) {
         e.set("Status", "Done")
+      }
+    }
+    if(old.isChange(this.lib, e, "Status") && old.Status == "Not") {    // if status changed from Not
+      let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
+      if(v) {
+        vs.setStatus(v)  // set visit status
       }
     }
   }
