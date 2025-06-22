@@ -21,7 +21,7 @@ var dt = {
   },
   toDateISO : function(date) {
     if(this.isDate(date)) {
-      return date.toISOString().slice(0,10)
+      return date.getFullYear()+"-"+("0"+(date.getmonth()+1)).slice(-2)+"-"+("0"+date.getdate()).slice(-2)
     }
     else {
       return ""
@@ -282,7 +282,7 @@ var ob = {
       }
     }
     log(e.field("OpNote")+","+dt.toDateISO(e.field("OpDate"))+","+dt.toDateISO(today)+","+e.field("Status"))
-    
+
     if(old.isChange(this.lib, e, "Status") && old.Status == "Not") {    // if status changed from Not
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
       if(v) {
