@@ -305,13 +305,26 @@ var ob = {
   },
   setOpType : function(e) {
     let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
-    if(opf && opf.field("OpFill") in op && op[opf.field("OpFill")].length>0 && !old.isChange(this.lib, e, "OpType")) {   // if Op changed but OpType not
+    if(opf && opf.name in op && op[opf.name].length>0 && !old.isChange(this.lib, e, "OpType")) {   // if Op changed but OpType not
       let optype = op.getOptypeByOp(opf)
       if(optype) {
         e.set("OpType", optype)
       }
       else {
         e.set("OpType", "GA")  // default to GA if no operation type found
+      }
+    }
+  },
+  setVsVisitType : function(e) {
+    let dxf = e.field("DxOpList").length>0 ? e.field("DxOpList")[0] : null
+    if(dxf && dxf.name in dx && dx[dxf.name].length>0) {
+      let vstype = dx.getVStypeByDx(dxf)
+      let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
+      if(vstype && v) {
+        v.set("VisitType", vstype)  // set visit type based on diagnosis
+        vs.setDCDate(v)
+        vs.setStatus(v)
+        vs.setWard(v)
       }
     }
   }
@@ -327,12 +340,12 @@ var dx = {
     return this.lib.create(o)
   },
   getChild : function(e) {
-    this[e.field("Dx")+" -> "+e.field("Op")] = ob.lib.linksTo(e)
+    this[e.name] = ob.lib.linksTo(e)
   },
   effect : function(e) {
     this.getChild(e)
-    if(this[e.field("Dx")+" -> "+e.field("Op")].length > 0) {
-      e.set("Count", this[e.field("Dx")+" -> "+e.field("Op")].length)
+    if(this[e.name].length > 0) {
+      e.set("Count", this[e.name].length)
     }
     else {
       e.set("Count", 0)
@@ -340,7 +353,17 @@ var dx = {
     // If count is zero, delete the diagnosis
     if(e.field("Count") == 0) {
       e.trash()  // delete diagnosis if count is zero
-      message("Deleted Diagnosis :"+ e.field("Dx")+" -> "+e.field("Op"))
+      message("Deleted Diagnosis :"+ e.name)
+    }
+  },
+  getVStypeByDx : function(e) {
+    if(this[e.name].length > 0) {
+      let group = {}
+      this[e.name].forEach(o => group[o.field("VisitType")] = (group[o.field("VisitType")] || 0) + 1)
+      return group["OPD"]>group["Admit"] ? "OPD" : "Admit"
+    }
+    else {
+      return null
     }
   }
 }
@@ -354,15 +377,15 @@ var op = {
     return this.lib.create(o)
   },
   getChild : function(e) {
-    this[e.field("OpFill")] = ob.lib.linksTo(e)   // get child operations for this operation
+    this[e.name] = ob.lib.linksTo(e)   // get child operations for this operation
   },
   effect : function(e) {
     this.getChild(e)  // get child operations
-    if(this[e.field("OpFill")].length > 0) {
-      e.set("Count", this[e.field("OpFill")].length)
+    if(this[e.name].length > 0) {
+      e.set("Count", this[e.name].length)
       // Calculate average operation time
       let n = 0
-      let totalTime = this[e.field("OpFill")].reduce((sum, op) => {
+      let totalTime = this[e.name].reduce((sum, op) => {
         if(op.field("TimeIn") != null && op.field("TimeOut") != null && op.field("OpTime")) {
           n += 1
           return sum + op.field("OpTime")
@@ -385,13 +408,13 @@ var op = {
     // If count is zero, delete the operation
     if(e.field("Count") == 0) {
       e.trash()  // delete operation if count is zero
-      message("Deleted Operation :"+ e.field("OpFill"))
+      message("Deleted Operation :"+ e.name)
     }
   },
   getOptypeByOp : function(e) {
-    if(this[e.field("OpFill")].length > 0) {
+    if(this[e.name].length > 0) {
       let group = {}
-      this[e.field("OpFill")].forEach(o => group[o.field("OpType")] = (group[o.field("OpType")] || 0) + 1)
+      this[e.name].forEach(o => group[o.field("OpType")] = (group[o.field("OpType")] || 0) + 1)
       return group["LA"]>group["GA"] ? "LA" : "GA"
     }
     else {
