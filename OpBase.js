@@ -307,7 +307,7 @@ var ob = {
     let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
     if(opf) {
       let optype = op.getOptypeByOp(opf)
-      log(optype)
+      log(optype, "Operation Type for "+opf.field("OpFill"))
       if(optype) {
         e.set("OpType", optype)
       }
