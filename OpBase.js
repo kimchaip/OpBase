@@ -305,7 +305,7 @@ var ob = {
   },
   setOpType : function(e) {
     let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
-    if(opf && opf.name in op && op[opf.name].length>0 && !old.isChange(this.lib, e, "OpType")) {   // if Op changed but OpType not
+    if(opf && opf.name in op && !old.isChange(this.lib, e, "OpType")) {   // if Op changed but OpType not
       let optype = op.getOptypeByOp(opf)
       if(optype) {
         e.set("OpType", optype)
@@ -317,7 +317,7 @@ var ob = {
   },
   setVsVisitType : function(e) {
     let dxf = e.field("DxOpList").length>0 ? e.field("DxOpList")[0] : null
-    if(dxf && dxf.name in dx && dx[dxf.name].length>0) {
+    if(dxf && dxf.name in dx) {
       let vstype = dx.getVStypeByDx(dxf)
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
       if(vstype && v) {
@@ -526,6 +526,7 @@ var tg = {
     ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
     ob.setDxOpLink(e) // set DxOpList and OperationList fields based on Dx and Op
     ob.setOpType(e)  // set OpType field based on OperationList
+    ob.setVsVisitType(e)  // set VisitType field in Visit based on DxOpList
   },
   obCreateAfter : function(e) {
   },
@@ -538,6 +539,7 @@ var tg = {
     ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
     ob.setDxOpLink(e)  // set DxOpList and OperationList fields based on Dx and Op
     ob.setOpType(e)  // set OpType field based on OperationList
+    ob.setVsVisitType(e)  // set VisitType field in Visit based on DxOpList
   },
   obUpdateAfter : function(e) {
   },
