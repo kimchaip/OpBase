@@ -65,17 +65,45 @@ var pt = {
     }
   },
   getChild : function(e) {
-    this["child"] = vs.lib.linksTo(e)
+    this[e.name] = vs.lib.linksTo(e)
   },
   setStatus : function(e) {
-    if(this.child.length>0) {
-      let v = this.child.find(v=> v.field("Status")=="Active")
+    if(!([e.name] in this)) {
+      this.getChild(e)
+    }
+    
+    if(this[e.name].length>0) {
+      let v = this[e.name].find(v=> v.field("Status")=="Active")
       if(v) {
         e.set("Status", "Active")
         e.set("Ward", v.field("Ward"))
       }
       else {
         e.set("Status", "Still")
+      }
+    }
+  },
+  setDJstent : function(e) {
+    if(!([e.name] in this)) {
+      this.getChild(e)
+    }
+
+    if(this[e.name].length > 0) {
+      let obs = []
+      this[e.name].forEach(v => {
+        let child = ob.lib.linksTo(v)
+        if(child.length>0) {
+          obs = obs.concat(child.filter(o=>dt.toDateISO(o.field("OpDate"))<=dt.toDateISO((today)) && o.field("DJstent")))
+        }
+      })
+      obs.sort((a,b)=>dt.toDateISO(a.field("OpDate"))-dt.toDateISO(b.field("OpDate")))
+      if(obs.length>0 && obs[obs.length-1]!="off DJ") {
+        e.set("DJstent", "on DJ")
+        e.set("DJDate", obs[obs.length-1].field("OpDate"))
+      }
+      else {
+        e.set("DJstent", null)
+        e.set("DJDate", null)
       }
     }
   }
@@ -123,7 +151,6 @@ var vs = {
   setPtField : function(e) {
     let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
     if(p) {
-      pt.getChild(p)
       pt.setStatus(p)
     }
   }
@@ -277,7 +304,6 @@ var ob = {
         v.set("DCDate", null)           // clear discharge date
         let p = v.field("Patient").length>0 ? v.field("Patient")[0] : null
         if(p) {                         // if this is the last visit
-          pt.getChild(p)                // get child visits
           pt.setStatus(p)               // set patient status
         }
       }
@@ -325,6 +351,47 @@ var ob = {
         vs.setDCDate(v)
         vs.setStatus(v)
         vs.setWard(v)
+      }
+    }
+  },
+  setDJstent : function(e) {
+    let opnote = e.field("OpNote")
+    let oldDJstent = e.field("DJstent")
+    if(e.field("Status") != "Not") {
+      if(opnote) {
+        let notdj = opnote.search(/(not|no|ไม่) *(|on|ใส่) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
+        let ondj = opnote.search(/(|on|ใส่) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
+        let offdj = opnote.search(/(|off|ถอด) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
+        let changedj = opnote.search(/(change|เปลี่ยน) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
+
+        if(notdj) {
+          e.set("DJStent", null)
+        }
+        else if(changedj) {
+          e.set("DJStent", "change DJ")
+        }
+        else if(offdj) {
+          e.set("DJStent", "off DJ")
+        }
+        else if(ondj) {
+          e.set("DJStent", "on DJ")
+        }
+        else {
+          e.set("DJStent", null)
+        }
+      }
+    }
+    else {
+      e.set("DJStent", null)  // if status is Not, clear DJStent
+    }
+
+    if(oldDJstent!=e.field("DJstent")) {    // change ObDJstent -> change PtDJstent
+      let v = e.field("Visit").length > 0 ? e.field("Visit")[0] : null
+      if(v) {
+        let p = v.field("Patient").length > 0 ? e.field("Patient")[0] : null
+        if(p) {
+          pt.setDJstent(p)
+        }
       }
     }
   }
@@ -524,6 +591,7 @@ var tg = {
     ob.validOpDate(e) // validate OpDate field
     ob.validDxOp(e)  // validate Dx and Op fields
     ob.setStatus(e)  // set Status field based on OpNote and OpDate
+    ob.setDJstent(e)  // set DJStent field based on OpNote
     ob.setOpExtra(e)  // set OpExtra field based on OpDate
     ob.setX15(e)  // set X1.5 field based on Dx and Op
     ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
