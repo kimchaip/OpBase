@@ -346,11 +346,22 @@ var ob = {
     if(dxf && dxf.name in dx) {
       let vstype = dx.getVStypeByDx(dxf)
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
-      if(vstype && v) {
-        v.set("VisitType", vstype)  // set visit type based on diagnosis
-        vs.setDCDate(v)
-        vs.setStatus(v)
-        vs.setWard(v)
+      if(v) {
+        let oldvstype = v.field("VisitType")
+        if(vstype) {
+          v.set("VisitType", vstype)  // set visit type based on diagnosis
+        }
+        else if(e.field("OpType")=="LA") {
+          v.set("VisitType", "OPD")
+        }
+        else if(e.field("OpType")=="GA") {
+          v.set("VisitType", "Admit")
+        }
+        if(oldvstype != v.field("VisitType")) {
+          vs.setDCDate(v)
+          vs.setStatus(v)
+          vs.setWard(v)
+        }
       }
     }
   },
