@@ -590,12 +590,12 @@ var tg = {
   obCreateBefore : function(e) {
     ob.validOpDate(e) // validate OpDate field
     ob.validDxOp(e)  // validate Dx and Op fields
-    ob.setStatus(e)  // set Status field based on OpNote and OpDate
-    ob.setDJstent(e)  // set DJStent field based on OpNote
+    ob.setStatus(e)  // set Status field based on OpNote and OpDate if change -> set Status field in Visit/Patient
+    ob.setDJstent(e)  // set DJstent field based on OpNote if change -> set DJstent/DJDate field in Patient
     ob.setOpExtra(e)  // set OpExtra field based on OpDate
     ob.setX15(e)  // set X1.5 field based on Dx and Op
     ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
-    ob.setDxOpLink(e) // set DxOpList and OperationList fields based on Dx and Op
+    ob.setDxOpLink(e) // set DxOpList and OperationList fields based on Dx and Op if change -> update count/opTimeX field
     ob.setOpType(e)  // set OpType field based on OperationList
     ob.setVsVisitType(e)  // set VisitType field in Visit based on DxOpList
   },
@@ -604,11 +604,12 @@ var tg = {
   obUpdateBefore : function(e) {
     ob.validOpDate(e) // validate OpDate field
     ob.validDxOp(e)  // validate Dx and Op fields
-    ob.setStatus(e)  // set Status field based on OpNote and OpDate
+    ob.setStatus(e)  // set Status field based on OpNote and OpDate if change -> set Status field in Visit/Patient
+    ob.setDJstent(e)  // set DJstent field based on OpNote if change -> set DJstent/DJDate field in Patient
     ob.setOpExtra(e)  // set OpExtra field based on OpDate
     ob.setX15(e)  // set X1.5 field based on Dx and Op
     ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
-    ob.setDxOpLink(e)  // set DxOpList and OperationList fields based on Dx and Op
+    ob.setDxOpLink(e)  // set DxOpList and OperationList fields based on Dx and Op if change -> update count/opTimeX field
     ob.setOpType(e)  // set OpType field based on OperationList
     ob.setVsVisitType(e)  // set VisitType field in Visit based on DxOpList
   },
