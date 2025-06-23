@@ -360,8 +360,8 @@ var ob = {
     if(e.field("Status") != "Not") {
       if(opnote) {
         let notdj = opnote.search(/(not|no|ไม่) *(|on|ใส่) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
-        let ondj = opnote.search(/(|on|ใส่) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
-        let offdj = opnote.search(/(|off|ถอด) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
+        let ondj = opnote.search(/(on|ใส่) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
+        let offdj = opnote.search(/(off|ถอด) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
         let changedj = opnote.search(/(change|เปลี่ยน) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
 
         if(notdj) {
