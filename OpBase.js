@@ -346,7 +346,7 @@ var ob = {
     if(dxf && dxf.name in dx) {
       let vstype = dx.getVStypeByDx(dxf)
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
-      if(v && dt.toDateISO(V.field("VisitDate")) > dt.toDateISO(today)) {
+      if(v && dt.toDateISO(v.field("VisitDate")) > dt.toDateISO(today)) {
         let oldvstype = v.field("VisitType")
         if(vstype) {
           v.set("VisitType", vstype)  // set visit type based on diagnosis
