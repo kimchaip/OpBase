@@ -388,7 +388,7 @@ var ob = {
     if(oldDJstent!=e.field("DJstent")) {    // change ObDJstent -> change PtDJstent
       let v = e.field("Visit").length > 0 ? e.field("Visit")[0] : null
       if(v) {
-        let p = v.field("Patient").length > 0 ? e.field("Patient")[0] : null
+        let p = v.field("Patient").length > 0 ? v.field("Patient")[0] : null
         if(p) {
           pt.setDJstent(p)
         }
