@@ -42,7 +42,7 @@ var pt = {
   name : "Patients",
   lib : libByName("Patients"),
   setAgeDOB : function(e) {
-    if(old.isChange(pt.lib, e, "DOB")) {
+    if(old.isChange.call(pt, e, "DOB")) {
       if(e.field("DOB")) {
         e.set("Age", dt.calAge(e.field("DOB")))
       }
@@ -50,7 +50,7 @@ var pt = {
         e.set("Age", null)
       }
     }
-    else if(old.isChange(pt.lib, e, "Age")) {
+    else if(old.isChange.call(pt, e, "Age")) {
       if(e.field("Age")) {
         e.set("DOB", dt.calBirthday(e.field("Age")))
       }
@@ -331,7 +331,7 @@ var ob = {
   },
   setOpType : function(e) {
     let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
-    if(opf && opf.name in op && !old.isChange(this.lib, e, "OpType")) {   // if Op changed but OpType not
+    if(opf && opf.name in op && !old.isChange.call(ob, e, "OpType")) {   // if Op changed but OpType not
       let optype = op.getOptypeByOp(opf)
       if(optype) {
         e.set("OpType", optype)
@@ -521,26 +521,54 @@ var hd = {
 }
 
 var old = {
-  isChange : function(lib, e, f) {
-    let o = lib.findById(e.id)
-    let ov = o?o.field(f):null
-    old[f] = ov
+  save : function(e) {
+    let fields = this.lib.fields();
+    let o = {}
+    for(let f of fields) {
+      if(f=="Patient" || f=="Visit" || f=="DxOpList" || f=="OperationList") {
+        o[f] = e.field(f).length>0 ? e.field(f)[0].name : null
+      }
+      else if(dt.isDate(e.field(f))) {
+        if(f.include("Time")) {
+          o[f] = e.field(f)
+        }
+        else {
+          o[f] = dt.toDateISO(e.field(f))
+        }
+      }
+      else if(Array.isArray(e.field(f))) {
+        o[f] = e.field(f).map(v => v.name).sort().join(",")
+      }
+      else if(typeof e.field(f) == "object" && e.field(f) != null) {
+        o[f] = JSON.stringify(e.field(f))
+      }
+      else {
+        o[f] = e.field(f)
+      }
+    }
+    old[this.name] = o
+  },
+  isChange : function(e, f) {
+    if(!(this.name in old) || !(f in old[this.name])) {
+      log("error : "+this.name+" or "+f+" is not found in old -> exit()")
+      message("error : "+this.name+" or "+f+" is not found in old -> exit()")
+      exit()
+    }
+
+    let ov = old[this.name][f]
     let ev = e.field(f)
-    //log("Checking change for "+f+": old value = "+ov+", new value = "+ev)
 
-    // Handle special cases for date fields
-    if(dt.isDate(ov)) {
-      ov = dt.toDateISO(ov)
+    // Handle special cases for data fields
+    if(f=="Patient" || f=="Visit" || f=="DxOpList" || f=="OperationList") {
+      ev = e.field(f).length>0 ? e.field(f)[0].name : null
     }
-    else if(Array.isArray(ov)) {
-      ov = ov.map(v => v.name).sort().join(",")
-    }
-    else if(typeof ov == "object" && ov != null) {
-      ov = JSON.stringify(ov)
-    }
-
-    if(dt.isDate(ev)) {
-      ev = dt.toDateISO(ev)
+    else if(dt.isDate(ev)) {
+      if(f.include("Time")) {
+        ev = ev
+      }
+      else {
+        ev = dt.toDateISO(ev)
+      }
     }
     else if(Array.isArray(ev)) {
       ev = ev.map(v => v.name).sort().join(",")
@@ -560,18 +588,21 @@ var old = {
 
 var tg = {
   ptCreateBefore : function(e) {
+    old.save.call(pt, e)
     pt.setAgeDOB(e)
     e.recalc()
   },
   ptCreateAfter : function(e) {
   },
   ptUpdateBefore : function(e) {
+    old.save.call(pt, e)
     pt.setAgeDOB(e)
     e.recalc()
   },
   ptUpdateAfter : function(e) {
   },
   vsCreateBefore : function(e) {
+    old.save.call(vs, e)
     vs.setDCDate(e)
     vs.setStatus(e)
     vs.setWard(e)
@@ -580,6 +611,7 @@ var tg = {
     vs.setPtField(e)
   },
   vsUpdateBefore : function(e) {
+    old.save.call(vs, e)
     vs.setDCDate(e)
     vs.setStatus(e)
     vs.setWard(e)
@@ -588,6 +620,7 @@ var tg = {
     vs.setPtField(e)
   },
   obCreateBefore : function(e) {
+    old.save.call(ob, e)
     ob.validOpDate(e) // validate OpDate field
     ob.validDxOp(e)  // validate Dx and Op fields
     ob.setStatus(e)  // set Status field based on OpNote and OpDate if change -> set Status field in Visit/Patient
@@ -602,6 +635,7 @@ var tg = {
   obCreateAfter : function(e) {
   },
   obUpdateBefore : function(e) {
+    old.save.call(ob, e)
     ob.validOpDate(e) // validate OpDate field
     ob.validDxOp(e)  // validate Dx and Op fields
     ob.setStatus(e)  // set Status field based on OpNote and OpDate if change -> set Status field in Visit/Patient
