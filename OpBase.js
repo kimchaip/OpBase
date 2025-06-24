@@ -533,28 +533,29 @@ var hd = {
 
 var old = {
   save : function(e) {
-    let fields = this.lib.fields();
+    let fields = this.lib.fields()
+    let oe = this.lib.findById(e.id)
     let o = {}
     for(let f of fields) {
       if(f=="Patient" || f=="Visit" || f=="DxOpList" || f=="OperationList") {
-        o[f] = e.field(f).length>0 ? e.field(f)[0].name : null
+        o[f] = oe.field(f).length>0 ? oe.field(f)[0].name : null
       }
-      else if(dt.isDate(e.field(f))) {
+      else if(dt.isDate(oe.field(f))) {
         if(f.includes("Time")) {
-          o[f] = e.field(f)
+          o[f] = oe.field(f)
         }
         else {
-          o[f] = dt.toDateISO(e.field(f))
+          o[f] = dt.toDateISO(oe.field(f))
         }
       }
-      else if(Array.isArray(e.field(f))) {
-        o[f] = e.field(f).map(v => v.name).sort().join(",")
+      else if(Array.isArray(oe.field(f))) {
+        o[f] = oe.field(f).map(v => v.name).sort().join(",")
       }
-      else if(typeof e.field(f) == "object" && e.field(f) != null) {
-        o[f] = JSON.stringify(e.field(f))
+      else if(typeof oe.field(f) == "object" && oe.field(f) != null) {
+        o[f] = JSON.stringify(oe.field(f))
       }
       else {
-        o[f] = e.field(f)
+        o[f] = oe.field(f)
       }
     }
     old[this.name] = o
