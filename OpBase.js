@@ -540,7 +540,7 @@ var old = {
         o[f] = e.field(f).length>0 ? e.field(f)[0].name : null
       }
       else if(dt.isDate(e.field(f))) {
-        if(f.include("Time")) {
+        if(f.includes("Time")) {
           o[f] = e.field(f)
         }
         else {
@@ -574,7 +574,7 @@ var old = {
       ev = e.field(f).length>0 ? e.field(f)[0].name : null
     }
     else if(dt.isDate(ev)) {
-      if(f.include("Time")) {
+      if(f.includes("Time")) {
         ev = ev
       }
       else {
