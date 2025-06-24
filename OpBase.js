@@ -346,11 +346,22 @@ var ob = {
     if(dxf && dxf.name in dx) {
       let vstype = dx.getVStypeByDx(dxf)
       let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
-      if(vstype && v) {
-        v.set("VisitType", vstype)  // set visit type based on diagnosis
-        vs.setDCDate(v)
-        vs.setStatus(v)
-        vs.setWard(v)
+      if(v && dt.toDateISO(v.field("VisitDate")) > dt.toDateISO(today)) {
+        let oldvstype = v.field("VisitType")
+        if(vstype) {
+          v.set("VisitType", vstype)  // set visit type based on diagnosis
+        }
+        else if(e.field("OpType")=="LA") {
+          v.set("VisitType", "OPD")
+        }
+        else if(e.field("OpType")=="GA") {
+          v.set("VisitType", "Admit")
+        }
+        if(oldvstype != v.field("VisitType")) {
+          vs.setDCDate(v)
+          vs.setStatus(v)
+          vs.setWard(v)
+        }
       }
     }
   },
@@ -360,8 +371,8 @@ var ob = {
     if(e.field("Status") != "Not") {
       if(opnote) {
         let notdj = opnote.search(/(not|no|ไม่) *(|on|ใส่) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
-        let ondj = opnote.search(/(|on|ใส่) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
-        let offdj = opnote.search(/(|off|ถอด) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
+        let ondj = opnote.search(/(on|ใส่) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
+        let offdj = opnote.search(/(off|ถอด) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
         let changedj = opnote.search(/(change|เปลี่ยน) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
 
         if(notdj) {
@@ -388,7 +399,7 @@ var ob = {
     if(oldDJstent!=e.field("DJstent")) {    // change ObDJstent -> change PtDJstent
       let v = e.field("Visit").length > 0 ? e.field("Visit")[0] : null
       if(v) {
-        let p = v.field("Patient").length > 0 ? e.field("Patient")[0] : null
+        let p = v.field("Patient").length > 0 ? v.field("Patient")[0] : null
         if(p) {
           pt.setDJstent(p)
         }
