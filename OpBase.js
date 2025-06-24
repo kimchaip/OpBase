@@ -568,7 +568,7 @@ var old = {
 
     let ov = old[this.name][f]
     let ev = e.field(f)
-
+    log("old v:"+ov+", new v:"+ev)
     // Handle special cases for data fields
     if(f=="Patient" || f=="Visit" || f=="DxOpList" || f=="OperationList") {
       ev = e.field(f).length>0 ? e.field(f)[0].name : null
