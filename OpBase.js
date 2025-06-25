@@ -423,11 +423,10 @@ var ob = {
       let oldoptype = old.getField.call(ob, e, "OpType")
 
       let obs = this.lib.entries()
-      let oldqs = []
       if(old.isChange.call(ob, e, "OpDate") || old.isChange.call(ob, e, "Status") || old.isChange.call(ob, e, "OpType")) {
         e.set("Que", "99")    // set Que to the last when OpDate, Status, OpType change 
         // load old OpBase entries by old OpDate, Status != "Not", OpType 
-        oldqs = obs.find(o=> dt.toDateISO(o.field("OpDate")) == oldopdate && o.field("Status") != "Not" && o.field("OpType") == oldoptype)
+        let oldqs = obs.find(o=> dt.toDateISO(o.field("OpDate")) == oldopdate && o.field("Status") != "Not" && o.field("OpType") == oldoptype)
         // sort filtrated old entries with TimeIn and Que
         oldqs.sort((a,b)=> {
           let A = a.field("TimeIn")!=null ? a.field("TimeIn") : 86400000
