@@ -459,7 +459,14 @@ var ob = {
         }
       })
       // reassign Que by sequence
-      newqs.forEach((o,i)=>o.set("Que",("0"+(i+1)).slice(-2)))
+      newqs.forEach((o,i)=>{
+        if(o.id==e.id) {
+          e.set("Que",("0"+(i+1)).slice(-2))
+        }
+        else {
+          o.set("Que",("0"+(i+1)).slice(-2))
+        }
+      })
     }
   }
 }
