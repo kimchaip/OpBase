@@ -411,23 +411,21 @@ var ob = {
     }
   },
   setQue : function(e) {
+    if(e.field("Status")=="Not") {
+      e.field("Que") = "00"
+    }
+    else if(e.field("Status")!="Not" && e.field("Que")=="00"){
+      e.field("Que") = "99"
+    }
+
     if(old.isChange.call(ob, e, "OpDate") || old.isChange.call(ob, e, "Status") || old.isChange.call(ob, e, "OpType") || old.isChange.call(ob, e, "Que") || old.isChange.call(ob, e, "TimeIn")) {
       let oldopdate = old.getField.call(ob, e, "OpDate")
-      let oldstatus = old.getField.call(ob, e, "Status")
       let oldoptype = old.getField.call(ob, e, "OpType")
-      let oldque = old.getField.call(ob, e, "Que")
-      let oldtimein = old.getField.call(ob, e, "TimeIn")
 
       let obs = this.lib.entries()
       let oldqs = []
       if(old.isChange.call(ob, e, "OpDate") || old.isChange.call(ob, e, "Status") || old.isChange.call(ob, e, "OpType")) {
-        if(e.field("Status")=="Not") {
-          e.field("Que") = "00"
-        }
-        else {
-          e.field("Que") = "99"
-        }
-
+        e.field("Que") = "99"   // set Que to the last when OpDate, Status, OpType change 
         // load old OpBase entries by old OpDate, Status != "Not", OpType 
         oldqs = obs.find(o=> dt.toDateISO(o.field("OpDate")) == oldopdate && o.field("Status") != "Not" && o.field("OpType") == oldoptype)
         // sort filtrated old entries with TimeIn and Que
@@ -699,33 +697,33 @@ var tg = {
     vs.setPtField(e)
   },
   obCreateBefore : function(e) {
-    old.save.call(ob, e)
-    ob.validOpDate(e) // validate OpDate field
-    ob.validDxOp(e)  // validate Dx and Op fields
-    ob.setStatus(e)  // set Status field based on OpNote and OpDate if change -> set Status field in Visit/Patient
-    ob.setDJstent(e)  // set DJstent field based on OpNote if change -> set DJstent/DJDate field in Patient
-    ob.setQue(e)
-    ob.setOpExtra(e)  // set OpExtra field based on OpDate
-    ob.setX15(e)  // set X1.5 field based on Dx and Op
-    ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
-    ob.setDxOpLink(e) // set DxOpList and OperationList fields based on Dx and Op if change -> update count/opTimeX field
-    ob.setOpType(e)  // set OpType field based on OperationList
+    old.save.call(ob, e)  // save ofd field value to old
+    ob.validOpDate(e)     // validate OpDate field
+    ob.validDxOp(e)       // validate Dx and Op fields
+    ob.setStatus(e)       // set Status field based on OpNote and OpDate if change -> set Status field in Visit/Patient
+    ob.setDJstent(e)      // set DJstent field based on OpNote if change -> set DJstent/DJDate field in Patient
+    ob.setQue(e)          // set Que field based on OpDate, Status, OpType, Que, TimeIn changes
+    ob.setOpExtra(e)      // set OpExtra field based on OpDate
+    ob.setX15(e)          // set X1.5 field based on Dx and Op
+    ob.setOpTime(e)       // set OpTime field based on TimeIn and TimeOut
+    ob.setDxOpLink(e)     // set DxOpList and OperationList fields based on Dx and Op if change -> update count/opTimeX field
+    ob.setOpType(e)       // set OpType field based on OperationList
     ob.setVsVisitType(e)  // set VisitType field in Visit based on DxOpList
   },
   obCreateAfter : function(e) {
   },
   obUpdateBefore : function(e) {
-    old.save.call(ob, e)
-    ob.validOpDate(e) // validate OpDate field
-    ob.validDxOp(e)  // validate Dx and Op fields
-    ob.setStatus(e)  // set Status field based on OpNote and OpDate if change -> set Status field in Visit/Patient
-    ob.setDJstent(e)  // set DJstent field based on OpNote if change -> set DJstent/DJDate field in Patient
-    ob.setQue(e)
-    ob.setOpExtra(e)  // set OpExtra field based on OpDate
-    ob.setX15(e)  // set X1.5 field based on Dx and Op
-    ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
-    ob.setDxOpLink(e)  // set DxOpList and OperationList fields based on Dx and Op if change -> update count/opTimeX field
-    ob.setOpType(e)  // set OpType field based on OperationList
+    old.save.call(ob, e)  // save ofd field value to old
+    ob.validOpDate(e)     // validate OpDate field
+    ob.validDxOp(e)       // validate Dx and Op fields
+    ob.setStatus(e)       // set Status field based on OpNote and OpDate if change -> set Status field in Visit/Patient
+    ob.setDJstent(e)      // set DJstent field based on OpNote if change -> set DJstent/DJDate field in Patient
+    ob.setQue(e)          // set Que field based on OpDate, Status, OpType, Que, TimeIn changes
+    ob.setOpExtra(e)      // set OpExtra field based on OpDate
+    ob.setX15(e)          // set X1.5 field based on Dx and Op
+    ob.setOpTime(e)       // set OpTime field based on TimeIn and TimeOut
+    ob.setDxOpLink(e)     // set DxOpList and OperationList fields based on Dx and Op if change -> update count/opTimeX field
+    ob.setOpType(e)       // set OpType field based on OperationList
     ob.setVsVisitType(e)  // set VisitType field in Visit based on DxOpList
   },
   obUpdateAfter : function(e) {
