@@ -97,6 +97,7 @@ var pt = {
         }
       })
       obs.sort((a,b)=>dt.toDateISO(a.field("OpDate"))-dt.toDateISO(b.field("OpDate")))
+      log(obs.length + " : " + (obs.length>0 ? obs[obs.length-1].field("DJstent") : ""))
       if(obs.length>0 && obs[obs.length-1].field("DJstent")!="off DJ") {
         e.set("DJstent", "on DJ")
         e.set("DJDate", obs[obs.length-1].field("OpDate"))
