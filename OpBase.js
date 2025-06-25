@@ -411,69 +411,46 @@ var ob = {
     }
   },
   setQue : function(e) {
-    if(e.field("Status")=="Not") {
-      e.set("Que", "00")
-    }
-    else if(e.field("Status")!="Not" && e.field("Que")=="00"){
-      e.set("Que", "99")
-    }
-
     if(old.isChange.call(ob, e, "OpDate") || old.isChange.call(ob, e, "Status") || old.isChange.call(ob, e, "OpType") || old.isChange.call(ob, e, "Que") || old.isChange.call(ob, e, "TimeIn")) {
       let oldopdate = old.getField.call(ob, e, "OpDate")
       let oldoptype = old.getField.call(ob, e, "OpType")
-
+      let oldstatus = old.getField.call(ob, e, "Status")
       let obs = this.lib.entries()
-      if(old.isChange.call(ob, e, "OpDate") || old.isChange.call(ob, e, "Status") || old.isChange.call(ob, e, "OpType")) {
-        e.set("Que", "99")    // set Que to the last when OpDate, Status, OpType change 
-        // load old OpBase entries by old OpDate, Status != "Not", OpType 
-        let oldqs = obs.filter(o=> dt.toDateISO(o.field("OpDate")) == oldopdate && o.field("Status") != "Not" && o.field("OpType") == oldoptype)
-        log("old1 :"+oldopdate+", "+oldoptype+", ["+oldqs.map(o=>o.field("Visit")[0].name+"; "+o.field("Que")).join(", ")+"]")
-        // sort filtrated old entries with TimeIn and Que
-        oldqs.sort((a,b)=> {
-          let A = a.field("TimeIn")!=null ? a.field("TimeIn") : 86400000
-          let B = b.field("TimeIn")!=null ? b.field("TimeIn") : 86400000
-          if(A-B!=0) {
-            return A-B
-          }
-          else if(a.field("Que")-b.field("Que")!=0){
-            return a.field("Que")-b.field("Que")
-          }
-          else {
-            return A.id!=e.id
-          }
-        })
-        log("old2 :"+oldopdate+", "+oldoptype+", ["+oldqs.map(o=>o.field("Visit")[0].name+"; "+o.field("Que")).join(", ")+"]")
-        // reassign Que by sequence
-        oldqs.forEach((o,i)=>o.set("Que",("0"+(i+1)).slice(-2)))
-        log("old3 :"+oldopdate+", "+oldoptype+", ["+oldqs.map(o=>o.field("Visit")[0].name+"; "+o.field("Que")).join(", ")+"]")
-      }
+
+      // load OpBase entries by OpDate, Status != "Not", OpType 
+      let oldqs = que.load(obs, oldopdate, oldoptype)
+      que.log(oldqs, "old1", oldopdate, oldoptype)
+      let newqs = que.load(obs, dt.toDateISO(e.field("OpDate")), e.field("OpType"))
+      que.log(newqs, "new1", dt.toDateISO(e.field("OpDate")), e.field("OpType"))
       
-      // load new OpBase entries by this OpDate, Status != "Not", OpType
-      let newqs = obs.filter(o=> dt.toDateISO(o.field("OpDate")) == dt.toDateISO(e.field("OpDate")) && o.field("Status") != "Not" && o.field("OpType") == e.field("OpType"))
-      log("new1 :"+e.field("OpDate")+", "+e.field("OpType")+", ["+newqs.map(o=>o.field("Visit")[0].name+"; "+o.field("Que")).join(", ")+"]")
-      // sort filtrated new entries with TimeIn and Que
-      newqs.sort((a,b)=> {
-        let A = a.field("TimeIn")!=null ? a.field("TimeIn") : 86400000
-        let B = b.field("TimeIn")!=null ? b.field("TimeIn") : 86400000
-        if(A-B!=0) {
-          return A-B
+      // sort filtrated entries with TimeIn and Que
+      que.sort(oldqs)
+      que.log(oldqs, "old2", oldopdate, oldoptype)
+      que.sort(newqs)
+      que.log(newqs, "new2", dt.toDateISO(e.field("OpDate")), e.field("OpType"))
+
+      // if OpDate, OpType was changed -> remove e from oldqs and save oldqs
+      if(old.isChange.call(ob, e, "OpDate") || old.isChange.call(ob, e, "OpType")) {
+        que.remove(oldqs, e)
+        que.save(oldqs)
+        que.log(oldqs, "old3" ,oldopdate, oldoptype)
+        e.set("Que", "00")
+      }
+
+      // if Status is change -> remove e from newqs if Status change to Not or insert e to newqs if Status change from Not to !Not
+      if(old.isChange.call(ob, e, "Status")) {
+        if(e.field("Status") == "Not") {
+          que.remove(newqs, e)
+          e.set("Que", "00")
         }
-        else {
-          return a.field("Que")-b.field("Que")
+        else if(oldstatus == "Not") {
+          que.insert(newqs, Number(e.field("Que")), e)
         }
-      })
-      log("new2 :"+e.field("OpDate")+", "+e.field("OpType")+", ["+newqs.map(o=>o.field("Visit")[0].name+"; "+o.field("Que")).join(", ")+"]")
-      // reassign Que by sequence
-      newqs.forEach((o,i)=>{
-        if(o.id==e.id) {
-          e.set("Que",("0"+(i+1)).slice(-2))
-        }
-        else {
-          o.set("Que",("0"+(i+1)).slice(-2))
-        }
-      })
-      log("new3 :"+e.field("OpDate")+", "+e.field("OpType")+", ["+newqs.map(o=>o.field("Visit")[0].name+"; "+o.field("Que")).join(", ")+"]")
-      log("e :"+e.field("Visit")[0].name+"; "+e.field("Que"))
+      }
+        
+      // reassign new Que by sequence
+      que.save(newqs)
+      que.log(newqs, "old3" ,dt.toDateISO(e.field("OpDate")), e.field("OpType"))
     }
   }
 }
@@ -673,6 +650,49 @@ var old = {
     else {
       return undefined
     }
+  }
+}
+
+var que = {
+  load : function(arr, opdate, optype) {
+    return arr.filter(o=> dt.toDateISO(o.field("OpDate")) == opdate && o.field("Status") != "Not" && o.field("OpType") == optype)
+  },
+  sort : function(arr) {
+    arr.sort((a,b)=>{
+      let A = a.field("TimeIn")!=null ? a.field("TimeIn") : 86400000
+      let B = b.field("TimeIn")!=null ? b.field("TimeIn") : 86400000
+      if(A-B!=0) {
+        return A-B
+      }
+      else {
+        return a.field("Que")-b.field("Que")
+      }
+    })
+  },
+  findInx : function(arr, e) {
+    return arr.length>0 ? arr.findIndex(o=> o.id==e.id) : -1
+  },
+  remove : function(arr, e) {
+    let inx = this.findInx(arr,e)
+    if(inx>-1) {
+      arr.splice(inx, 1)
+    }
+  },
+  insert : function(arr, q, e) {
+    if(q>0) {
+      arr.splice(q-1, 0, e)
+    }
+    else {
+      arr.push(e)
+    }
+  },
+  save : function(arr) {
+    arr.forEach((o,i)=>{
+      o.set("Que",("0"+(i+1)).slice(-2))
+    })
+  },
+  log : function(arr, title, opdate, optype) {
+    log(title+" :"+opdate+", "+optype+", ["+arr.map(o=>o.field("Visit")[0].name+"; "+o.field("Que")).join(", ")+"]")
   }
 }
 
