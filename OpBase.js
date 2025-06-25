@@ -145,7 +145,7 @@ var vs = {
     if(e.field("VisitType")=="OPD") {
       e.set("Ward","OPD")
     }
-    else if(e.field("Ward")=="OPD" || !e.field("Ward")) {
+    else if(old.isChange.call(vs, e, "VisitType") && !old.isChange.call(vs, e, "Ward")) {
       e.set("Ward","Uro")
     }
   },
