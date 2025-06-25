@@ -96,7 +96,7 @@ var pt = {
           obs = obs.concat(child.filter(o=>dt.toDateISO(o.field("OpDate"))<=dt.toDateISO((today)) && o.field("DJstent")))
         }
       })
-      obs.sort((a,b)=>dt.toDateISO(a.field("OpDate"))-dt.toDateISO(b.field("OpDate")))
+      obs.sort((a,b)=>dt.toDateISO(a.field("OpDate"))>dt.toDateISO(b.field("OpDate")))
       log(obs.length + " : " + (obs.length>0 ? obs.reduce((t,o)=>t += ";  "+dt.toDateISO(o.field("OpDate"))+", "+o.field("DJstent"),"") : ""))
       if(obs.length>0 && obs[obs.length-1].field("DJstent")!="off DJ") {
         e.set("DJstent", "on DJ")
