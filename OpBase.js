@@ -426,7 +426,7 @@ var ob = {
       if(old.isChange.call(ob, e, "OpDate") || old.isChange.call(ob, e, "Status") || old.isChange.call(ob, e, "OpType")) {
         e.set("Que", "99")    // set Que to the last when OpDate, Status, OpType change 
         // load old OpBase entries by old OpDate, Status != "Not", OpType 
-        let oldqs = obs.find(o=> dt.toDateISO(o.field("OpDate")) == oldopdate && o.field("Status") != "Not" && o.field("OpType") == oldoptype)
+        let oldqs = obs.filter(o=> dt.toDateISO(o.field("OpDate")) == oldopdate && o.field("Status") != "Not" && o.field("OpType") == oldoptype)
         // sort filtrated old entries with TimeIn and Que
         oldqs.sort((a,b)=> {
           let A = a.field("TimeIn")!=null ? a.field("TimeIn") : 86400000
@@ -446,7 +446,7 @@ var ob = {
       }
       
       // load new OpBase entries by this OpDate, Status != "Not", OpType
-      let newqs = obs.find(o=> dt.toDateISO(o.field("OpDate")) == dt.toDateISO(e.field("OpDate")) && o.field("Status") != "Not" && o.field("OpType") == e.field("OpType"))
+      let newqs = obs.filter(o=> dt.toDateISO(o.field("OpDate")) == dt.toDateISO(e.field("OpDate")) && o.field("Status") != "Not" && o.field("OpType") == e.field("OpType"))
       // sort filtrated new entries with TimeIn and Que
       newqs.sort((a,b)=> {
         let A = a.field("TimeIn")!=null ? a.field("TimeIn") : 86400000
