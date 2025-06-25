@@ -412,10 +412,10 @@ var ob = {
   },
   setQue : function(e) {
     if(e.field("Status")=="Not") {
-      e.field("Que") = "00"
+      e.set("Que", "00")
     }
     else if(e.field("Status")!="Not" && e.field("Que")=="00"){
-      e.field("Que") = "99"
+      e.set("Que", "99")
     }
 
     if(old.isChange.call(ob, e, "OpDate") || old.isChange.call(ob, e, "Status") || old.isChange.call(ob, e, "OpType") || old.isChange.call(ob, e, "Que") || old.isChange.call(ob, e, "TimeIn")) {
@@ -425,7 +425,7 @@ var ob = {
       let obs = this.lib.entries()
       let oldqs = []
       if(old.isChange.call(ob, e, "OpDate") || old.isChange.call(ob, e, "Status") || old.isChange.call(ob, e, "OpType")) {
-        e.field("Que") = "99"   // set Que to the last when OpDate, Status, OpType change 
+        e.set("Que", "99")    // set Que to the last when OpDate, Status, OpType change 
         // load old OpBase entries by old OpDate, Status != "Not", OpType 
         oldqs = obs.find(o=> dt.toDateISO(o.field("OpDate")) == oldopdate && o.field("Status") != "Not" && o.field("OpType") == oldoptype)
         // sort filtrated old entries with TimeIn and Que
