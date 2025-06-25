@@ -376,24 +376,27 @@ var ob = {
         let changedj = opnote.search(/(change|เปลี่ยน) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
 
         if(notdj) {
-          e.set("DJStent", null)
+          e.set("DJstent", null)
         }
         else if(changedj) {
-          e.set("DJStent", "change DJ")
+          e.set("DJstent", "change DJ")
         }
         else if(offdj) {
-          e.set("DJStent", "off DJ")
+          e.set("DJstent", "off DJ")
         }
         else if(ondj) {
-          e.set("DJStent", "on DJ")
+          e.set("DJstent", "on DJ")
         }
         else {
-          e.set("DJStent", null)
+          e.set("DJstent", null)
         }
+      }
+      else {
+        e.set("DJstent", null)
       }
     }
     else {
-      e.set("DJStent", null)  // if status is Not, clear DJStent
+      e.set("DJstent", null)  // if status is Not, clear DJstent
     }
 
     if(oldDJstent!=e.field("DJstent")) {    // change ObDJstent -> change PtDJstent
