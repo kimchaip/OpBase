@@ -419,24 +419,20 @@ var ob = {
 
       // load OpBase entries by OpDate, Status != "Not", OpType 
       let oldqs = que.load(obs, oldopdate, oldoptype)
-      que.log(oldqs, "old1", oldopdate, oldoptype)
       let newqs = que.load(obs, dt.toDateISO(e.field("OpDate")), e.field("OpType"))
-      que.log(newqs, "new1", dt.toDateISO(e.field("OpDate")), e.field("OpType"))
       
       // sort filtrated entries with TimeIn and Que
       que.sort(oldqs)
-      que.log(oldqs, "old2", oldopdate, oldoptype)
       que.sort(newqs)
-      que.log(newqs, "new2", dt.toDateISO(e.field("OpDate")), e.field("OpType"))
-
-      // if OpDate, OpType was changed -> remove e from oldqs and save oldqs
+      
+      // if OpDate or OpType was changed -> remove e from oldqs and save oldqs, reset Que = "00"
       if(old.isChange.call(ob, e, "OpDate") || old.isChange.call(ob, e, "OpType")) {
         que.remove(oldqs, e)
         que.save(oldqs)
-        que.log(oldqs, "old3" ,oldopdate, oldoptype)
         e.set("Que", "00")
       }
 
+      // if Status was changed -> remove e from newqs +/- insert e to newqs at this Que
       if(e.field("Status") == "Not") {
         que.remove(newqs, e)
         e.set("Que", "00")
@@ -448,7 +444,6 @@ var ob = {
         
       // reassign new Que by sequence
       que.save(newqs)
-      que.log(newqs, "old3" ,dt.toDateISO(e.field("OpDate")), e.field("OpType"))
     }
   }
 }
