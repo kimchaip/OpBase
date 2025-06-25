@@ -427,6 +427,7 @@ var ob = {
         e.set("Que", "99")    // set Que to the last when OpDate, Status, OpType change 
         // load old OpBase entries by old OpDate, Status != "Not", OpType 
         let oldqs = obs.filter(o=> dt.toDateISO(o.field("OpDate")) == oldopdate && o.field("Status") != "Not" && o.field("OpType") == oldoptype)
+        log("old1 :"+oldopdate+", "+oldoptype+", ["+oldqs.map(o=>o.field("Visit")[0].name+"; "+o.field("Que")).join(", ")+"]")
         // sort filtrated old entries with TimeIn and Que
         oldqs.sort((a,b)=> {
           let A = a.field("TimeIn")!=null ? a.field("TimeIn") : 86400000
@@ -441,12 +442,15 @@ var ob = {
             return A.id!=e.id
           }
         })
+        log("old2 :"+oldopdate+", "+oldoptype+", ["+oldqs.map(o=>o.field("Visit")[0].name+"; "+o.field("Que")).join(", ")+"]")
         // reassign Que by sequence
         oldqs.forEach((o,i)=>o.set("Que",("0"+(i+1)).slice(-2)))
+        log("old3 :"+oldopdate+", "+oldoptype+", ["+oldqs.map(o=>o.field("Visit")[0].name+"; "+o.field("Que")).join(", ")+"]")
       }
       
       // load new OpBase entries by this OpDate, Status != "Not", OpType
       let newqs = obs.filter(o=> dt.toDateISO(o.field("OpDate")) == dt.toDateISO(e.field("OpDate")) && o.field("Status") != "Not" && o.field("OpType") == e.field("OpType"))
+      log("new1 :"+e.field("OpDate")+", "+e.field("OpType")+", ["+newqs.map(o=>o.field("Visit")[0].name+"; "+o.field("Que")).join(", ")+"]")
       // sort filtrated new entries with TimeIn and Que
       newqs.sort((a,b)=> {
         let A = a.field("TimeIn")!=null ? a.field("TimeIn") : 86400000
@@ -458,6 +462,7 @@ var ob = {
           return a.field("Que")-b.field("Que")
         }
       })
+      log("new2 :"+e.field("OpDate")+", "+e.field("OpType")+", ["+newqs.map(o=>o.field("Visit")[0].name+"; "+o.field("Que")).join(", ")+"]")
       // reassign Que by sequence
       newqs.forEach((o,i)=>{
         if(o.id==e.id) {
@@ -467,6 +472,8 @@ var ob = {
           o.set("Que",("0"+(i+1)).slice(-2))
         }
       })
+      log("new3 :"+e.field("OpDate")+", "+e.field("OpType")+", ["+newqs.map(o=>o.field("Visit")[0].name+"; "+o.field("Que")).join(", ")+"]")
+      log("e :"+e.field("Visit")[0].name+"; "+e.field("Que"))
     }
   }
 }
