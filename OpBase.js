@@ -437,15 +437,13 @@ var ob = {
         e.set("Que", "00")
       }
 
-      // if Status is change -> remove e from newqs if Status change to Not or insert e to newqs if Status change from Not to !Not
-      if(old.isChange.call(ob, e, "Status")) {
-        if(e.field("Status") == "Not") {
-          que.remove(newqs, e)
-          e.set("Que", "00")
-        }
-        else if(oldstatus == "Not") {
-          que.insert(newqs, Number(e.field("Que")), e)
-        }
+      if(e.field("Status") == "Not") {
+        que.remove(newqs, e)
+        e.set("Que", "00")
+      }
+      else {
+        que.remove(newqs, e)
+        que.insert(newqs, Number(e.field("Que")), e)
       }
         
       // reassign new Que by sequence
