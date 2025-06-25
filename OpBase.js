@@ -408,6 +408,61 @@ var ob = {
         }
       }
     }
+  },
+  setQue : function(e) {
+    if(old.isChange.call(ob, e, "OpDate") || old.isChange.call(ob, e, "Status") || old.isChange.call(ob, e, "OpType") || old.isChange.call(ob, e, "Que") || old.isChange.call(ob, e, "TimeIn")) {
+      let oldopdate = old.getField.call(ob, e, "OpDate")
+      let oldstatus = old.getField.call(ob, e, "Status")
+      let oldoptype = old.getField.call(ob, e, "OpType")
+      let oldque = old.getField.call(ob, e, "Que")
+      let oldtimein = old.getField.call(ob, e, "TimeIn")
+
+      let obs = this.lib.entries()
+      let oldqs = []
+      if(old.isChange.call(ob, e, "OpDate") || old.isChange.call(ob, e, "Status") || old.isChange.call(ob, e, "OpType")) {
+        if(e.field("Status")=="Not") {
+          e.field("Que") = "00"
+        }
+        else {
+          e.field("Que") = "99"
+        }
+
+        // load old OpBase entries by old OpDate, Status != "Not", OpType 
+        oldqs = obs.find(o=> dt.toDateISO(o.field("OpDate")) == oldopdate && o.field("Status") != "Not" && o.field("OpType") == oldoptype)
+        // sort filtrated old entries with TimeIn and Que
+        oldqs.sort((a,b)=> {
+          let A = a.field("TimeIn")!=null ? a.field("TimeIn") : 86400000
+          let B = b.field("TimeIn")!=null ? b.field("TimeIn") : 86400000
+          if(A-B!=0) {
+            return A-B
+          }
+          else if(a.field("Que")-b.field("Que")!=0){
+            return a.field("Que")-b.field("Que")
+          }
+          else {
+            return A.id!=e.id
+          }
+        })
+        // reassign Que by sequence
+        oldqs.forEach((o,i)=>o.set("Que",("0"+(i+1)).slice(-2)))
+      }
+      
+      // load new OpBase entries by this OpDate, Status != "Not", OpType
+      let newqs = obs.find(o=> dt.toDateISO(o.field("OpDate")) == dt.toDateISO(e.field("OpDate")) && o.field("Status") != "Not" && o.field("OpType") == e.field("OpType"))
+      // sort filtrated new entries with TimeIn and Que
+      newqs.sort((a,b)=> {
+        let A = a.field("TimeIn")!=null ? a.field("TimeIn") : 86400000
+        let B = b.field("TimeIn")!=null ? b.field("TimeIn") : 86400000
+        if(A-B!=0) {
+          return A-B
+        }
+        else {
+          return a.field("Que")-b.field("Que")
+        }
+      })
+      // reassign Que by sequence
+      newqs.forEach((o,i)=>o.set("Que",("0"+(i+1)).slice(-2)))
+    }
   }
 }
 
@@ -598,6 +653,14 @@ var old = {
     else {
       return ev || ov
     }
+  },
+  getField : function(e, f) {
+    if(this.name in old && f in old[this.name]) {
+      return old[this.name][f]
+    }
+    else {
+      return undefined
+    }
   }
 }
 
@@ -640,6 +703,7 @@ var tg = {
     ob.validDxOp(e)  // validate Dx and Op fields
     ob.setStatus(e)  // set Status field based on OpNote and OpDate if change -> set Status field in Visit/Patient
     ob.setDJstent(e)  // set DJstent field based on OpNote if change -> set DJstent/DJDate field in Patient
+    ob.setQue(e)
     ob.setOpExtra(e)  // set OpExtra field based on OpDate
     ob.setX15(e)  // set X1.5 field based on Dx and Op
     ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
@@ -655,6 +719,7 @@ var tg = {
     ob.validDxOp(e)  // validate Dx and Op fields
     ob.setStatus(e)  // set Status field based on OpNote and OpDate if change -> set Status field in Visit/Patient
     ob.setDJstent(e)  // set DJstent field based on OpNote if change -> set DJstent/DJDate field in Patient
+    ob.setQue(e)
     ob.setOpExtra(e)  // set OpExtra field based on OpDate
     ob.setX15(e)  // set X1.5 field based on Dx and Op
     ob.setOpTime(e)  // set OpTime field based on TimeIn and TimeOut
