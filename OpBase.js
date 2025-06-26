@@ -176,21 +176,24 @@ var vs = {
     log("buildDefault")
     if(buildDefaultEntry().created) {
       let vss = this.lib.entries()
-      let lastmod = Math.max(...vss.map(v=>v.lastModifiedTime))
-      let e = vss.find(v=>v.lastModifiedTime == lastmod)
-      if(e) {
-        let p = e.field("Patient")[0]
-        log("p : "+e.name)
-        if(e.field("VisitDate")) {
-          log("visitdate : "+e.field("VisitDate"))
-          let pasthx = pt.getPastHx(p,e.field("VisitDate"))
-          message("visitdate : " + pasthx)
-          buildDefaultEntry().set("Px", pasthx)
-        }
-        else {
-          let pasthx = pt.getPastHx(p,today)
-          message("today : " + pasthx)
-          buildDefaultEntry().set("Px", pasthx)
+      if(vss.length>0) {
+        let arrlastmod = vss.map(v=>v.lastModifiedTime)
+        let lastmod = Math.max(...arrlastmod)
+        let e = vss.find(v=>v.lastModifiedTime == lastmod)
+        if(e) {
+          let p = e.field("Patient")[0]
+          log("p : "+e.name)
+          if(e.field("VisitDate")) {
+            log("visitdate : "+e.field("VisitDate"))
+            let pasthx = pt.getPastHx(p,e.field("VisitDate"))
+            message("visitdate : " + pasthx)
+            buildDefaultEntry().set("Px", pasthx)
+          }
+          else {
+            let pasthx = pt.getPastHx(p,today)
+            message("today : " + pasthx)
+            buildDefaultEntry().set("Px", pasthx)
+          }
         }
       }
     }
