@@ -180,7 +180,7 @@ var vs = {
       if(vss.length>0) {
         let lastHour = new Date(today.getFullYear(),today.getMonth(),today.getDate(),today.getHours()-1)
         let nlastHour = lastHour.getTime()
-        let vstoday = vss.filter(v=>v.lastModifiedTime.getTime()>=nyesterday)
+        let vstoday = vss.filter(v=>v.lastModifiedTime.getTime()>=nlastHour)
         vstoday.sort((a,b)=>a.lastModifiedTime.getTime()>b.lastModifiedTime.getTime())
         log("vstoday:"+vstoday.length)
         let e = vstoday.length>0 ? vstoday[vstoday.length-1] : null
