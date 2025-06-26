@@ -178,6 +178,8 @@ var vs = {
       let vss = this.lib.entries()
       log("vss:"+vss.length)
       if(vss.length>0) {
+        log(vss[vss.length-1].lastModifiedTime)
+        log(dt.toDateISO(vss[vss.length-1].lastModifiedTime))
         let vstoday = vss.filter(v=>dt.toDateISO(v.lastModifiedTime)==dt.toDateISO((today)))
         vstoday.sort((a,b)=>a.lastModifiedTime>b.lastModifiedTime)
         log("vstoday:"+vstoday.length)
