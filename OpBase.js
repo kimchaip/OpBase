@@ -178,10 +178,9 @@ var vs = {
       let vss = this.lib.entries()
       log("vss:"+vss.length)
       if(vss.length>0) {
-        let yesterday = new Date(today.getFullYear(),today.getMonth(),today.getDate())
-        let nyesterday = yesterday.getTime()
-        let ntoday = today.getTime()
-        let vstoday = vss.filter(v=>v.lastModifiedTime.getTime()>=nyesterday&&v.lastModifiedTime.getTime()<=ntoday)
+        let lastHour = new Date(today.getFullYear(),today.getMonth(),today.getDate(),today.getHours()-1)
+        let nlastHour = lastHour.getTime()
+        let vstoday = vss.filter(v=>v.lastModifiedTime.getTime()>=nyesterday)
         vstoday.sort((a,b)=>a.lastModifiedTime.getTime()>b.lastModifiedTime.getTime())
         log("vstoday:"+vstoday.length)
         let e = vstoday.length>0 ? vstoday[vstoday.length-1] : null
