@@ -173,11 +173,15 @@ var vs = {
     }
   },
   buildDefault : function() {
+    log("buildDefault")
     if(buildDefaultEntry().created) {
       let e = buildDefaultEntry()
+      log("in if buildDefaultEntry().created")
       if(e.field("Patient").length>0) {
         let p = e.field("Patient")[0]
+        log("p : "+e.name)
         if(e.field("VisitDate")) {
+          log("visitdate : "+e.field("VisitDate"))
           let pasthx = pt.getPastHx(p,e.field("VisitDate"))
           message("visitdate : " + pasthx)
           buildDefaultEntry().set("Px", pasthx)
