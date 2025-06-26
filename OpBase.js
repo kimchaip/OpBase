@@ -175,9 +175,10 @@ var vs = {
   buildDefault : function() {
     log("buildDefault")
     if(buildDefaultEntry().created) {
-      let e = buildDefaultEntry()
-      log("in if buildDefaultEntry().created")
-      if(e.field("Patient").length>0) {
+      let vss = this.lib.entries()
+      let lastmod = Math.max(...vss.map(v=>v.lastModifiedTime))
+      let e = vss.find(v=>v.lastModifiedTime == lastmod)
+      if(e) {
         let p = e.field("Patient")[0]
         log("p : "+e.name)
         if(e.field("VisitDate")) {
