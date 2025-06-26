@@ -29,7 +29,7 @@ var dt = {
   },
   toDateShort : function(date) {
     if(this.isDate(date)) {
-      return ("0"+date.getDate()).slice(-2)+"."+("0"+(date.getMonth()+1)).slice(-2)+" : "
+      return ("0"+date.getDate()).slice(-2)+"."+("0"+(date.getMonth()+1)).slice(-2)+"."+date.getFullYear().toString()+" : "
     }
     else {
       return ""
@@ -97,7 +97,7 @@ var pt = {
         }
       })
       obs.sort((a,b)=>dt.toDateISO(a.field("OpDate"))>dt.toDateISO(b.field("OpDate")))
-      log(obs.length + " : " + (obs.length>0 ? obs.reduce((t,o)=>t += ";  "+dt.toDateISO(o.field("OpDate"))+", "+o.field("DJstent"),"") : ""))
+      
       if(obs.length>0 && obs[obs.length-1].field("DJstent")!="off DJ") {
         e.set("DJstent", "on DJ")
         e.set("DJDate", obs[obs.length-1].field("OpDate"))
@@ -106,6 +106,23 @@ var pt = {
         e.set("DJstent", null)
         e.set("DJDate", null)
       }
+    }
+  },
+  getPastHx : function(e, date) {
+    if(!([e.name] in this)) {
+      this.getChild(e)
+    }
+    if(this[e.name].length > 0) {
+      let obs = []
+      let datestr = dt.toDateISO((date))
+      this[e.name].forEach(v => {
+        let child = ob.lib.linksTo(v)
+        if(child.length>0) {
+          obs = obs.concat(child.filter(o=>dt.toDateISO(o.field("OpDate"))<=datestr && o.field("Status")!="Not"))
+        }
+      })
+      obs.sort((a,b)=>dt.toDateISO(a.field("OpDate"))>dt.toDateISO(b.field("OpDate")))
+      return obs.length>0 ? obs.reduce((t,o)=>t += o.field("Dx") + " > " + o.field("Dx") + " [" + dt.toDateShort(o.field("OpDate")) + "]\n","").slice(0,-1) : ""
     }
   }
 }
@@ -154,7 +171,25 @@ var vs = {
     if(p) {
       pt.setStatus(p)
     }
-  }
+  },
+  buildDefault : function() {
+    if(buildDefaultEntry().created) {
+      let e = buildDefaultEntry()
+      if(e.field("Patient").length>0) {
+        let p = e.field("Patient")[0]
+        if(e.field("VisitDate")) {
+          let pasthx = pt.getPastHx(p,e.field("VisitDate"))
+          message("visitdate : " + pasthx)
+          buildDefaultEntry().set("Px", pasthx)
+        }
+        else {
+          let pasthx = pt.getPastHx(p,today)
+          message("today : " + pasthx)
+          buildDefaultEntry().set("Px", pasthx)
+        }
+      }
+    }
+  } 
 }
 
 var ob = {
@@ -703,6 +738,9 @@ var tg = {
     e.recalc()
   },
   ptUpdateAfter : function(e) {
+  },
+  vsCreateOpenEdit : function() {
+    vs.buildDefault()
   },
   vsCreateBefore : function(e) {
     old.save.call(vs, e)
