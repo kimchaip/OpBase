@@ -177,9 +177,9 @@ var vs = {
     if(buildDefaultEntry().created) {
       let vss = this.lib.entries()
       if(vss.length>0) {
-        let arrlastmod = vss.map(v=>v.lastModifiedTime)
-        let lastmod = Math.max(...arrlastmod)
-        let e = vss.find(v=>v.lastModifiedTime == lastmod)
+        let vstoday = vss.filter(v=>dt.toDateISO(v.lastModifiedTime)==(today))
+        vstoday.sort((a,b)=>a.lastModifiedTime>b.lastModifiedTime)
+        let e = vstoday.length>0 ? vstoday[vstoday.length-1] : null
         if(e) {
           let p = e.field("Patient")[0]
           log("p : "+e.name)
