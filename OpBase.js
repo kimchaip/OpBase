@@ -177,7 +177,7 @@ var vs = {
     if(buildDefaultEntry().created) {
       let vss = this.lib.entries()
       if(vss.length>0) {
-        let e = entryDefault()
+        let e = buildDefaultEntry()
         let p = e.field("Patient")[0]
         log("p : "+e.name)
         if(e.field("VisitDate")) {
