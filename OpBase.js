@@ -118,7 +118,7 @@ var pt = {
       this[e.name].forEach(v => {
         let child = ob.lib.linksTo(v)
         if(child.length>0) {
-          obs = obs.concat(child.filter(o=>dt.toDateISO(o.field("OpDate"))<=datestr && o.field("Status")!="Not"))
+          obs = obs.concat(child.filter(o=>dt.toDateISO(o.field("OpDate"))<datestr && o.field("Status")!="Not"))
         }
       })
       obs.sort((a,b)=>dt.toDateISO(a.field("OpDate"))>dt.toDateISO(b.field("OpDate")))
