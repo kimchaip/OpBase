@@ -172,7 +172,7 @@ var vs = {
       pt.setStatus(p)
     }
   },
-  setPx : function() {
+  setPx : function(e) {
     let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
     if(p && e.field("VisitDate") && !e.field("Px")) {
       e.set("Px", pt.getPastHx(p,e.field("VisitDate")))
@@ -734,7 +734,7 @@ var tg = {
     vs.setDCDate(e)
     vs.setStatus(e)
     vs.setWard(e)
-    vs.setPx
+    vs.setPx(e)
   },
   vsCreateAfter : function(e) {
     vs.setPtField(e)
@@ -744,7 +744,7 @@ var tg = {
     vs.setDCDate(e)
     vs.setStatus(e)
     vs.setWard(e)
-    vs.setPx
+    vs.setPx(e)
   },
   vsUpdateAfter : function(e) {
     vs.setPtField(e)
