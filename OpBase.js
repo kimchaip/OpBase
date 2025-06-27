@@ -124,6 +124,15 @@ var pt = {
       obs.sort((a,b)=>dt.toDateISO(a.field("OpDate"))>dt.toDateISO(b.field("OpDate")))
       return obs.length>0 ? obs.reduce((t,o)=>t += o.field("Dx") + " > " + o.field("Dx") + " [" + dt.toDateShort(o.field("OpDate")) + "]\n","").slice(0,-1) : ""
     }
+  },
+  isDuplicate : function(e, ev) {
+    if(!(e.name in this)) {
+      this.getChild(e)
+    }
+    if(this[e.name].length>0) {
+      found = this[e.name].some(v=>dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate")) && v.id!=ev.id)
+    }
+    return found;
   }
 }
 
@@ -194,7 +203,7 @@ var vs = {
       }
       tg.vsUpdateBefore(v)
       tg.vsUpdateAfter(v)
-      
+
       if(e.field("EntryMx")=="SetOR") {
         let o = ob.lib.create({})
         o.set("OpDate", e.field("AppointDate"))
@@ -204,7 +213,59 @@ var vs = {
         tg.obUpdateBefore(o)
         tg.obUpdateAfter(o)
       }
+      return v
     }
+    return null
+  },
+  entryMx : function(e) {
+    let hdents = hd.getEntries(e.field("AppointDate"));
+    let outofduty = false;
+    let holiday = false;
+    let opextra = false;
+    let calname = "";
+    if(hdents.length>0) {
+      outofduty = hdents.some(h=>h.field("OutOfDuty"));
+      holiday = hdents.some(h=>h.field("Holiday")) || my.gday(e.field("AppointDate"))==0 || my.gday(e.field("AppointDate"))==6;
+      opextra = hdents.some(h=>h.field("Title") == "ORนอกเวลา");
+      let found = hdents.find(h=>h.field("Title") == "ORนอกเวลา");
+      if (found) calname = found.field("Calendar");
+    }
+    
+    let duplicate = false;
+    if (e.field("EntryMx")== "F/U" &&  e.field("AppointDate")) {
+      duplicate = emx.checkduplicate.call(cso, e);
+      if(!duplicate) {
+        last = emx.createnew.call(cso, e);
+        last.show();
+        cal.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
+      }
+      else message("Check appoint date whether it is duplicated");
+    }
+    else if (e.field("EntryMx")== "set OR" &&  e.field("AppointDate")) {
+      duplicate = emx.checkduplicate.call(uro, e);
+      if(!duplicate) {
+        if(outofduty) {
+          if(e.field("Dr")!="ชัยพร") {
+            last = emx.createnew.call(uro, e);
+            last.show();
+            cal.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
+          }
+          else {
+            message("This 'AppointDate' overlap with '" + hdent.field("Title") + "' . please change Appointdate or Dr");
+          }
+        }
+        else {
+          last = emx.createnew.call(uro, e);
+          last.show();
+          cal.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
+        }
+      }
+      else message("check appoint date whether it is duplicated");
+    }
+    else if (e.field("EntryMx")=="F/U" || e.field("EntryMx")=="set OR") {
+      message("Appoint date must not leave blank");
+    }
+    e.set("EntryMx", "<Default>");
   }
 }
 
