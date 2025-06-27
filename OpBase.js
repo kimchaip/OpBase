@@ -172,26 +172,10 @@ var vs = {
       pt.setStatus(p)
     }
   },
-  buildDefault : function() {
-    log("buildDefault")
-    if(buildDefaultEntry().created) {
-      let vss = this.lib.entries()
-      if(vss.length>0) {
-        let e = buildDefaultEntry()
-        let p = e.field("Patient")[0]
-        log("p : "+e.name)
-        if(e.field("VisitDate")) {
-          log("visitdate : "+e.field("VisitDate"))
-          let pasthx = pt.getPastHx(p,e.field("VisitDate"))
-          message("visitdate : " + pasthx)
-          buildDefaultEntry().set("Px", pasthx)
-        }
-        else {
-          let pasthx = pt.getPastHx(p,today)
-          message("today : " + pasthx)
-          buildDefaultEntry().set("Px", pasthx)
-        }
-      }
+  setPx : function() {
+    let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
+    if(p && e.field("VisitDate") && !e.field("Px")) {
+      e.set("Px", pt.getPastHx(p,e.field("VisitDate")))
     }
   } 
 }
@@ -744,13 +728,13 @@ var tg = {
   ptUpdateAfter : function(e) {
   },
   vsCreateOpenEdit : function() {
-    vs.buildDefault()
   },
   vsCreateBefore : function(e) {
     old.save.call(vs, e)
     vs.setDCDate(e)
     vs.setStatus(e)
     vs.setWard(e)
+    vs.setPx
   },
   vsCreateAfter : function(e) {
     vs.setPtField(e)
@@ -760,6 +744,7 @@ var tg = {
     vs.setDCDate(e)
     vs.setStatus(e)
     vs.setWard(e)
+    vs.setPx
   },
   vsUpdateAfter : function(e) {
     vs.setPtField(e)
