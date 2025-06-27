@@ -176,28 +176,20 @@ var vs = {
     log("buildDefault")
     if(buildDefaultEntry().created) {
       let vss = this.lib.entries()
-      log("vss:"+vss.length)
       if(vss.length>0) {
-        let lastHour = new Date(today.getFullYear(),today.getMonth(),today.getDate(),today.getHours()-1)
-        let nlastHour = lastHour.getTime()
-        let vstoday = vss.filter(v=>v.lastModifiedTime.getTime()>=nlastHour)
-        vstoday.sort((a,b)=>a.lastModifiedTime.getTime()>b.lastModifiedTime.getTime())
-        log("vstoday:"+vstoday.length)
-        let e = vstoday.length>0 ? vstoday[vstoday.length-1] : null
-        if(e) {
-          let p = e.field("Patient")[0]
-          log("p : "+e.name)
-          if(e.field("VisitDate")) {
-            log("visitdate : "+e.field("VisitDate"))
-            let pasthx = pt.getPastHx(p,e.field("VisitDate"))
-            message("visitdate : " + pasthx)
-            buildDefaultEntry().set("Px", pasthx)
-          }
-          else {
-            let pasthx = pt.getPastHx(p,today)
-            message("today : " + pasthx)
-            buildDefaultEntry().set("Px", pasthx)
-          }
+        let e = entryDefault()
+        let p = e.field("Patient")[0]
+        log("p : "+e.name)
+        if(e.field("VisitDate")) {
+          log("visitdate : "+e.field("VisitDate"))
+          let pasthx = pt.getPastHx(p,e.field("VisitDate"))
+          message("visitdate : " + pasthx)
+          buildDefaultEntry().set("Px", pasthx)
+        }
+        else {
+          let pasthx = pt.getPastHx(p,today)
+          message("today : " + pasthx)
+          buildDefaultEntry().set("Px", pasthx)
         }
       }
     }
