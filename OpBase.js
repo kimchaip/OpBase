@@ -177,7 +177,35 @@ var vs = {
     if(p && e.field("VisitDate") && !e.field("Px")) {
       e.set("Px", pt.getPastHx(p,e.field("VisitDate")))
     }
-  } 
+  },
+  create : function(e) {
+    let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
+    if (p && p.field("Status")!="Dead") {
+      
+      let v = this.lib.create({})
+      
+      let opdate = e.field("AppointDate")
+      let visitdate = new Date(opdate.getFullYear(), opdate.getMonth(), opdate.getDate()-1)
+      v.set("VisitDate", e.field("EntryMx")=="SetOR" ? visitdate : opdate)
+      v.set("Patient", p.name)
+      v.set("Dr", e.field("Dr"))
+      if(e.field("Photo").length>0) {
+        v.set("Photo", e.field("Photo").join())
+      }
+      tg.vsUpdateBefore(v)
+      tg.vsUpdateAfter(v)
+      
+      if(e.field("EntryMx")=="SetOR") {
+        let o = ob.lib.create({})
+        o.set("OpDate", e.field("AppointDate"))
+        o.set("Visit", v.name)
+        o.set("Op", e.field("Operation"));
+        o.set("Dx", e.field("Diagnosis"));
+        tg.obUpdateBefore(o)
+        tg.obUpdateAfter(o)
+      }
+    }
+  }
 }
 
 var ob = {
