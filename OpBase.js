@@ -29,7 +29,7 @@ var dt = {
   },
   toDateShort : function(date) {
     if(this.isDate(date)) {
-      return ("0"+date.getDate()).slice(-2)+"."+("0"+(date.getMonth()+1)).slice(-2)+"."+date.getFullYear().toString()+" : "
+      return ("0"+date.getDate()).slice(-2)+"."+("0"+(date.getMonth()+1)).slice(-2)+"."+date.getFullYear().toString()
     }
     else {
       return ""
