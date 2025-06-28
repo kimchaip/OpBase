@@ -304,21 +304,17 @@ var vs = {
     let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
     if (p && p.field("Status")!="Dead") {
       let dxf = dx.getDxByName(e.field("Diagnosis")+" -> "+e.field("Operation"))
-      log("dxf:"+dxf.name)
       let visittype = "Admit"
       if(dxf) {
         visittype = dx.getVStypeByDx(dxf)
-        log("get:"+visittype)
         if(!visittype) {
           visittype = "Admit"   // default visittype to Admit
         }
       }
       let opf = op.getOpByName(e.field("Operation"))
-      log("opf:"+opf.name)
       let optype = "GA"
       if(opf) {
         optype = op.getOptypeByOp(opf)
-        log("get:"+optype)
         if(!optype) {
           optype = "GA"         // default optype to GA
         }
@@ -701,13 +697,11 @@ var ob = {
   },
   effectDxOpLink : function(e) {
     let dxf = e.field("DxOpList").length>0 ? e.field("DxOpList")[0] : null
-    log("dxf:"+dxf.name)
     if(dxf) {
       dx.effect(dxf)
     }
 
     let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
-    log("opf:"+opf.name)
     if(opf) {
       op.effect(opf)
     }
