@@ -280,6 +280,7 @@ var vs = {
         ob.setQue(o)
         ob.setOpExtra(o)
         ob.setX15(o)
+        ob.setOpTime(o)
         ob.setDxOpLink(o)
       }
       return v
