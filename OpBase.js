@@ -643,7 +643,9 @@ var dx = {
     return this.lib.create(o)
   },
   getChild : function(e) {
-    this[e.name] = ob.lib.linksTo(e)
+    if(!(e.name in this)) {
+      this[e.name] = ob.lib.linksTo(e)
+    }
   },
   effect : function(e) {
     this.getChild(e)
@@ -660,6 +662,7 @@ var dx = {
     }
   },
   getVStypeByDx : function(e) {
+    this.getChild(e)
     if(this[e.name].length > 0) {
       let group = {}
       this[e.name].forEach(o => {
@@ -686,7 +689,9 @@ var op = {
     return this.lib.create(o)
   },
   getChild : function(e) {
-    this[e.name] = ob.lib.linksTo(e)   // get child operations for this operation
+    if(!(e.name in this)) {
+      this[e.name] = ob.lib.linksTo(e)   // get child operations for this operation
+    }
   },
   effect : function(e) {
     this.getChild(e)  // get child operations
@@ -721,6 +726,7 @@ var op = {
     }
   },
   getOptypeByOp : function(e) {
+    this.getChild(e)  // get child operations
     if(this[e.name].length > 0) {
       let group = {}
       this[e.name].forEach(o => group[o.field("OpType")] = (group[o.field("OpType")] || 0) + 1)
