@@ -139,12 +139,24 @@ var pt = {
     }
     
     if(this[e.name].length>0) {
+      let dxf = dx.getDxByName(ev.field("Diagnosis")+" -> "+ev.field("Operation"))
+      let visittype = "Admit"
+      if(dxf) {
+        visittype = dx.getVStypeByDx(dxf)
+      }
+      
       found = this[e.name].some(v=>{
         if(ev.field("EntryMx")=="SetOR") {
-          return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(dt.calSubtract(ev.field("AppointDate")))
+          if(visittype=="Admit") {
+            return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(dt.calSubtract(ev.field("AppointDate"))) && v.field("VisitType") == visittype
+          }
+          else {
+            return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate")) && v.field("VisitType") == visittype
+          }
+          
         }
         else if(ev.field("EntryMx")=="F/U"){
-          return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate"))
+          return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate")) && v.field("VisitType") == visittype
         }
       })
     }
@@ -214,34 +226,62 @@ var vs = {
   create : function(e) {
     let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
     if (p && p.field("Status")!="Dead") {
-      let v = this.lib.create({})
-      
+      let dxf = dx.getDxByName(e.field("Diagnosis")+" -> "+e.field("Operation"))
+      let visittype = "Admit"
+      if(dxf) {
+        visittype = dx.getVStypeByDx(dxf)
+      }
+      let opf = op.getOpByName(e.field("Operation"))
+      let optype = "GA"
+      if(opf) {
+        optype = op.getOptypeByOp(opf)
+      }
+
+      let ov = new Object()
       if(e.field("EntryMx")=="SetOR") {
-        v.set("VisitDate", dt.calSubtract(e.field("AppointDate"), 1))
+        if(visittype=="Admit") {
+          ov["VisitDate"] = dt.calSubtract(e.field("AppointDate"), 1)
+          ov["Ward"] = "Uro"
+        }
+        else {
+          ov["VisitDate"] = e.field("AppointDate")
+          ov["Ward"] = "OPD"
+        }
       }
       else if(e.field("EntryMx")=="F/U") {
-        v.set("VisitDate", e.field("AppointDate"))
+        ov["VisitDate"] = e.field("AppointDate")
+        ov["Ward"] = "OPD"
       }
+      ov["VisitType"] = visittype
+      ov["Dr"] =e.field("Dr")
+
+      let v = this.lib.create(ov)
       v.set("Patient", p.name)
-      v.set("Dr", e.field("Dr"))
       if(e.field("Photo").length>0) {
         v.set("Photo", e.field("Photo").join())
       }
-      tg.vsUpdateBefore(v)
-      tg.vsUpdateAfter(v)
+      vs.setDCDate(e)
+      vs.setStatus(v)
+      vs.setPx(v)
+      vs.setPtField(v)
 
       if(e.field("EntryMx")=="SetOR") {
-        let o = ob.lib.create({})
-        o.set("OpDate", e.field("AppointDate"))
+        let oo = 
+        oo["OpDate"] = e.field("AppointDate")
+        oo["OpType"] = optype
+        oo["Op"] = e.field("Operation")
+        oo["Dx"] = e.field("Diagnosis")
+
+        let o = ob.lib.create(oo)
         o.set("Visit", v.name)
-        o.set("Op", e.field("Operation"));
-        o.set("Dx", e.field("Diagnosis"));
-        tg.obUpdateBefore(o)
-        tg.obUpdateAfter(o)
+        ob.setStatus(o)
+        ob.setQue(o)
+        op.setOpExtra(o)
+        ob.setX15(o)
+        ob.setDxOpLink(o)
       }
       return v
     }
-    log("null")
     return null
   },
   entryMx : function(e) {
@@ -256,14 +296,11 @@ var vs = {
       opextra = hdents.some(h=>h.field("Title") == "ORนอกเวลา");
       let found = hdents.find(h=>h.field("Title") == "ORนอกเวลา");
       if (found) calname = found.field("Calendar");
-      log(calname)
     }
     
-    let duplicate = false
     let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
+    let duplicate = duplicate = pt.isDuplicate(p, e);
     if (e.field("EntryMx")== "F/U" &&  e.field("AppointDate")) {
-      duplicate = pt.isDuplicate(p, e);
-      log("dup :"+duplicate)
       if(!duplicate) {
         let last = vs.create(e);
         last.show();
@@ -272,8 +309,6 @@ var vs = {
       else message("Check appoint date whether it is duplicated");
     }
     else if (e.field("EntryMx")== "SetOR" &&  e.field("AppointDate")) {
-      duplicate = pt.isDuplicate(p, e);
-      log("dup :"+duplicate)
       if(!duplicate) {
         if(outofduty) {
           if(e.field("Dr")!="ชัยพร") {
@@ -283,7 +318,6 @@ var vs = {
           }
           else {
             message("This 'AppointDate' overlap with '" + hdent.field("Title") + "' . please change Appointdate or Dr")
-            log("This 'AppointDate' overlap with '" + hdent.field("Title") + "' . please change Appointdate or Dr")
           }
         }
         else {
@@ -293,11 +327,9 @@ var vs = {
         }
       }
       else message("check appoint date whether it is duplicated")
-      log("check appoint date whether it is duplicated")
     }
     else if (e.field("EntryMx")=="F/U" || e.field("EntryMx")=="SetOR") {
       message("Appoint date must not leave blank")
-      log("Appoint date must not leave blank")
     }
     e.set("EntryMx", "<Default>");
   }
@@ -639,6 +671,9 @@ var dx = {
     else {
       return null
     }
+  },
+  getDxByName : function(dxop) {
+    return this.lib.findByKey(dxop)
   }
 }
 
@@ -694,6 +729,9 @@ var op = {
     else {
       return null
     }
+  },
+  getOpByName : function(op) {
+    return this.lib.findByKey(op)
   }
 }
 
