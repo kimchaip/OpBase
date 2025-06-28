@@ -2,9 +2,16 @@ var dt = {
   isDate : function(value) {
     return value instanceof Date && !isNaN(value)
   },
+  isDateStr : function(value) {
+    return typeof value == "string" && new Date(date) instanceof Date
+  },
   diffDays : function(date1, date2) {
     if(this.isDate(date1) && this.isDate(date2)) {
       let diffTime = Math.abs(date2 - date1);
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+    else if(this.isDateStr(date1) && this.isDateStr(date2)) {
+      let diffTime = Math.abs(new Date(date2) - new Date(date1));
       return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     }
     else {
@@ -12,16 +19,35 @@ var dt = {
     }
   },
   calAge : function(birthday) {
-    let ageDifMs = Date.now() - birthday.getTime();
-    let ageDate = new Date(ageDifMs); // miliseconds from epoch
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
+    if(this.isDate(birthday)) {
+      let ageDifMs = Date.now() - birthday.getTime();
+      let ageDate = new Date(ageDifMs); // miliseconds from epoch
+      return Math.abs(ageDate.getUTCFullYear() - 1970);
+    }
+    else if(this.isDateStr(birthday)) {
+      let ageDifMs = Date.now() - new Date(birthday).getTime();
+      let ageDate = new Date(ageDifMs); // miliseconds from epoch
+      return Math.abs(ageDate.getUTCFullYear() - 1970);
+    }
+    else {
+      return null
+    }
   },
   calBirthday : function(age) {
-    return new Date(today.getFullYear()-age, today.getMonth(), today.getDate(), 7)
+    if(age>0) {
+      return new Date(today.getFullYear()-age, today.getMonth(), today.getDate(), 7)
+    }
+    else {
+      return null
+    }
   },
   toDateISO : function(date) {
     if(this.isDate(date)) {
       return date.getFullYear()+"-"+("0"+(date.getMonth()+1)).slice(-2)+"-"+("0"+date.getDate()).slice(-2)
+    }
+    else if(this.isDateStr(date)) {
+      let odate = new Date(date)
+      return odate.getFullYear()+"-"+("0"+(odate.getMonth()+1)).slice(-2)+"-"+("0"+odate.getDate()).slice(-2)
     }
     else {
       return ""
@@ -31,6 +57,10 @@ var dt = {
     if(this.isDate(date)) {
       return ("0"+date.getDate()).slice(-2)+"."+("0"+(date.getMonth()+1)).slice(-2)+"."+date.getFullYear().toString()
     }
+    else if(this.isDateStr(date)) {
+      let odate = new Date(date)
+      return ("0"+odate.getDate()).slice(-2)+"."+("0"+(odate.getMonth()+1)).slice(-2)+"."+odate.getFullYear().toString()
+    }
     else {
       return ""
     }
@@ -38,6 +68,10 @@ var dt = {
   calSubtract : function(date, d) {
     if(this.isDate(date)) {
       return new Date(date.getFullYear(), date.getMonth(), date.getDate()-d)
+    }
+    else if(this.isDateStr(date)) {
+      let odate = new Date(date)
+      return new Date(odate.getFullYear(), odate.getMonth(), odate.getDate()-d)
     }
     else {
       return date
