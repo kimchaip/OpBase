@@ -228,8 +228,11 @@ var vs = {
         tg.obUpdateBefore(o)
         tg.obUpdateAfter(o)
       }
+      log(JSON.stringify(v))
+      log(JSON.stringify(o))
       return v
     }
+    log("null")
     return null
   },
   entryMx : function(e) {
@@ -244,12 +247,14 @@ var vs = {
       opextra = hdents.some(h=>h.field("Title") == "ORนอกเวลา");
       let found = hdents.find(h=>h.field("Title") == "ORนอกเวลา");
       if (found) calname = found.field("Calendar");
+      log(calname)
     }
     
     let duplicate = false
     let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
     if (e.field("EntryMx")== "F/U" &&  e.field("AppointDate")) {
       duplicate = pt.isDuplicate(p, e);
+      log("dup :"+duplicate)
       if(!duplicate) {
         let last = vs.create(e);
         last.show();
@@ -259,6 +264,7 @@ var vs = {
     }
     else if (e.field("EntryMx")== "set OR" &&  e.field("AppointDate")) {
       duplicate = pt.isDuplicate(p, e);
+      log("dup :"+duplicate)
       if(!duplicate) {
         if(outofduty) {
           if(e.field("Dr")!="ชัยพร") {
@@ -267,7 +273,8 @@ var vs = {
             hd.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
           }
           else {
-            message("This 'AppointDate' overlap with '" + hdent.field("Title") + "' . please change Appointdate or Dr");
+            message("This 'AppointDate' overlap with '" + hdent.field("Title") + "' . please change Appointdate or Dr")
+            log("This 'AppointDate' overlap with '" + hdent.field("Title") + "' . please change Appointdate or Dr")
           }
         }
         else {
@@ -276,10 +283,12 @@ var vs = {
           hd.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
         }
       }
-      else message("check appoint date whether it is duplicated");
+      else message("check appoint date whether it is duplicated")
+      log("check appoint date whether it is duplicated")
     }
     else if (e.field("EntryMx")=="F/U" || e.field("EntryMx")=="set OR") {
-      message("Appoint date must not leave blank");
+      message("Appoint date must not leave blank")
+      log("Appoint date must not leave blank")
     }
     e.set("EntryMx", "<Default>");
   }
@@ -706,6 +715,7 @@ var hd = {
       if(holiday) textarr.push("holiday");
       if(opextra) textarr.push("ORนอกเวลา " + translate[calName.indexOf(own)]);
       message("Warning : Date is overlap with " + textarr.join());
+      log("Warning : Date is overlap with " + textarr.join())
     }
   }
 }
