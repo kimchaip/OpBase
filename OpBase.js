@@ -750,7 +750,7 @@ var dx = {
         let vstype = o.field("Visit").length>0?o.field("Visit")[0].field("VisitType"):""
         group[vstype] = (group[vstype] || 0) + 1
       })
-      return group["OPD"]>group["Admit"] ? "OPD" : "Admit"
+      return (group["OPD"]||0)>(group["Admit"]||0) ? "OPD" : "Admit"
     }
     else {
       return null
@@ -811,8 +811,7 @@ var op = {
     if(this[e.name].length > 0) {
       let group = {}
       this[e.name].forEach(o => group[o.field("OpType")] = (group[o.field("OpType")] || 0) + 1)
-      log(e.name+" LA:"+group["LA"]+", GA:"+group["GA"])
-      return group["LA"]>group["GA"] ? "LA" : "GA"
+      return (group["LA"]||0)>(group["GA"]||0) ? "LA" : "GA"
     }
     else {
       return null
