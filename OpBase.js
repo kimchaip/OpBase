@@ -219,7 +219,7 @@ var vs = {
       if(e.field("EntryMx")=="SetOR") {
         v.set("VisitDate", dt.calSubtract(e.field("AppointDate"), 1))
       }
-      else if(e.field("EntryMx")=="SetOR") {
+      else if(e.field("EntryMx")=="F/U") {
         v.set("VisitDate", e.field("AppointDate"))
       }
       v.set("Patient", p.name)
@@ -504,6 +504,7 @@ var ob = {
         else if(e.field("OpType")=="GA") {
           v.set("VisitType", "Admit")
         }
+
         if(oldvstype != v.field("VisitType")) {
           if(v.field("VisitType")=="OPD") {
             v.set("VisitDate", e.field("OpDate"))
