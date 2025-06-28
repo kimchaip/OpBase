@@ -138,29 +138,31 @@ var pt = {
       this.getChild(e)
     }
     
+    let found = false
     if(this[e.name].length>0) {
       let dxf = dx.getDxByName(ev.field("Diagnosis")+" -> "+ev.field("Operation"))
-      let visittype = "Admit"
       if(dxf) {
-        visittype = dx.getVStypeByDx(dxf)
-      }
-      
-      found = this[e.name].some(v=>{
-        if(ev.field("EntryMx")=="SetOR") {
-          if(visittype=="Admit") {
-            return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(dt.calSubtract(ev.field("AppointDate"))) && v.field("VisitType") == visittype
+        let visittype = dx.getVStypeByDx(dxf)
+        if(!visittype) {
+          visittype = "Admit"
+        }
+        found = this[e.name].some(v=>{
+          if(ev.field("EntryMx")=="SetOR") {
+            if(visittype=="Admit") {
+              return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(dt.calSubtract(ev.field("AppointDate"))) && v.field("VisitType") == visittype
+            }
+            else {
+              return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate")) && v.field("VisitType") == visittype
+            }
+            
           }
-          else {
+          else if(ev.field("EntryMx")=="F/U"){
             return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate")) && v.field("VisitType") == visittype
           }
-          
-        }
-        else if(ev.field("EntryMx")=="F/U"){
-          return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate")) && v.field("VisitType") == visittype
-        }
-      })
+        })
+      }
     }
-    return found;
+    return found
   }
 }
 
@@ -230,11 +232,17 @@ var vs = {
       let visittype = "Admit"
       if(dxf) {
         visittype = dx.getVStypeByDx(dxf)
+        if(!visittype) {
+          visittype = "Admit"   // default visittype to Admit
+        }
       }
       let opf = op.getOpByName(e.field("Operation"))
       let optype = "GA"
       if(opf) {
         optype = op.getOptypeByOp(opf)
+        if(!optype) {
+          optype = "GA"         // default optype to GA
+        }
       }
 
       let ov = new Object()
