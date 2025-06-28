@@ -418,8 +418,8 @@ var vs = {
     this[e.name] = ob.lib.linksTo(e)
     if(this[e.name].length>0) {
       this[e.name].forEach(o=> {
-        ob.effectDxOpLink(o)
         o.trash()
+        ob.effectDxOpLink(o)
       })
     }
   }
