@@ -182,7 +182,7 @@ var vs = {
 
     if(field.length>0) {
       cancel()
-      message(field.join(", ").slice(0,-2)+(field.length==1?" Field is":" Fields are")+" not empty")
+      message(field.join(", ")+(field.length==1?" Field is":" Fields are")+" not empty")
     }
   },
   setDCDate : function(e) {
