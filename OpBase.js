@@ -304,7 +304,7 @@ var vs = {
     let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
     if (p && p.field("Status")!="Dead") {
       let dxf = dx.getDxByName(e.field("Diagnosis")+" -> "+e.field("Operation"))
-      log("opf:"+JSON.stringify(dxf))
+      log("dxf:"+dxf.name)
       let visittype = "Admit"
       if(dxf) {
         visittype = dx.getVStypeByDx(dxf)
@@ -314,7 +314,7 @@ var vs = {
         }
       }
       let opf = op.getOpByName(e.field("Operation"))
-      log("opf:"+JSON.stringify(opf))
+      log("opf:"+opf.name)
       let optype = "GA"
       if(opf) {
         optype = op.getOptypeByOp(opf)
@@ -810,6 +810,7 @@ var op = {
     if(this[e.name].length > 0) {
       let group = {}
       this[e.name].forEach(o => group[o.field("OpType")] = (group[o.field("OpType")] || 0) + 1)
+      log(e.name+" LA:"+group["LA"]+", GA:"+group["GA"])
       return group["LA"]>group["GA"] ? "LA" : "GA"
     }
     else {
