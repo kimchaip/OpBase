@@ -700,13 +700,14 @@ var ob = {
     }
   },
   effectDxOpLink : function(e) {
-    let dxf = e.field("DxOpList").length>0 ? e.field("DxOpList") : null
-    log("dxf:"+JSON.stringify(dxf))
+    let dxf = e.field("DxOpList").length>0 ? e.field("DxOpList")[0] : null
+    log("dxf:"+dxf.name)
     if(dxf) {
       dx.effect(dxf)
     }
 
     let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
+    log("opf:"+opf.name)
     if(opf) {
       op.effect(opf)
     }
