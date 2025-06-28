@@ -304,17 +304,21 @@ var vs = {
     let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
     if (p && p.field("Status")!="Dead") {
       let dxf = dx.getDxByName(e.field("Diagnosis")+" -> "+e.field("Operation"))
+      log("opf:"+JSON.stringify(dxf))
       let visittype = "Admit"
       if(dxf) {
         visittype = dx.getVStypeByDx(dxf)
+        log("get:"+visittype)
         if(!visittype) {
           visittype = "Admit"   // default visittype to Admit
         }
       }
       let opf = op.getOpByName(e.field("Operation"))
+      log("opf:"+JSON.stringify(opf))
       let optype = "GA"
       if(opf) {
         optype = op.getOptypeByOp(opf)
+        log("get:"+optype)
         if(!optype) {
           optype = "GA"         // default optype to GA
         }
