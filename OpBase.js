@@ -107,13 +107,12 @@ var pt = {
     }
   },
   getChild : function(e) {
-    this[e.name] = vs.lib.linksTo(e)
+    if(!([e.name] in this)) {
+      this[e.name] = vs.lib.linksTo(e)
+    }
   },
   setStatus : function(e) {
-    if(!([e.name] in this)) {
-      this.getChild(e)
-    }
-    
+    this.getChild(e)
     if(this[e.name].length>0) {
       let v = this[e.name].find(v=> v.field("Status")=="Active")
       if(v) {
@@ -126,10 +125,7 @@ var pt = {
     }
   },
   setDJstent : function(e) {
-    if(!([e.name] in this)) {
-      this.getChild(e)
-    }
-
+    this.getChild(e)
     if(this[e.name].length > 0) {
       let obs = []
       this[e.name].forEach(v => {
@@ -151,9 +147,7 @@ var pt = {
     }
   },
   getPastHx : function(e, date) {
-    if(!([e.name] in this)) {
-      this.getChild(e)
-    }
+    this.getChild(e)
     if(this[e.name].length > 0) {
       let obs = []
       let datestr = dt.toDateISO((date))
@@ -168,10 +162,7 @@ var pt = {
     }
   },
   isDuplicate : function(e, ev) {
-    if(!(e.name in this)) {
-      this.getChild(e)
-    }
-    
+    this.getChild(e)
     let found = false
     if(this[e.name].length>0) {
       let dxf = dx.getDxByName(ev.field("Diagnosis")+" -> "+ev.field("Operation"))
@@ -230,7 +221,14 @@ var vs = {
         message("Found Duplication!! Please change Appoint Date or Operation")
       }
     }
-    
+  },
+  getChild : function(e) {
+    if(!(this[e.name] in this)) {
+      this[e.name] = ob.lib.linksTo(e)
+    }
+  },
+  setVisitType : function(e) {
+
   },
   setDCDate : function(e) {
     if(e.field("VisitType")=="OPD" ) {
@@ -388,6 +386,15 @@ var vs = {
       }
     }
     e.set("EntryMx", "<Default>");
+  },
+  deleteChild : function(e) {
+    this[e.name] = ob.lib.linksTo(e)
+    if(this[e.name].length>0) {
+      this[e.name].forEach(o=> {
+        ob.recalDxOpLink(o)
+        o.trash()
+      })
+    }
   }
 }
 
@@ -685,6 +692,17 @@ var ob = {
         
       // reassign new Que by sequence
       que.save(newqs)
+    }
+  },
+  recalDxOpLink : function(e) {
+    let dxf = e.field("DxOpList").length>0 ? e.field("DxOpList") : null
+    if(dxf) {
+      dx.effect(dxf)
+    }
+
+    let opf = e.field("OperationList").length>0 ? e.field("OperationList")[0] : null
+    if(opf) {
+      op.effect(opf)
     }
   }
 }
@@ -1032,6 +1050,12 @@ var tg = {
     ob.setVsVisitType(e)  // set VisitType field in Visit based on DxOpList
   },
   obUpdateAfter : function(e) {
+  },
+  obDeleteBefore : function(e) {
+
+  },
+  obDeleteAfter : function(e) {
+    ob.recalDxOpLink(e)
   },
   dxCreateBefore : function(e) {
     dx.effect(e)  // update count of diagnosis
