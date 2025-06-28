@@ -180,12 +180,12 @@ var pt = {
         if(!visittype) {
           visittype = "Admit"
         }
-        log("appointdate isdate:"+dt.isDate(ev.field("AppointDate"),1)+", isdatestr:"+dt.isDateStr(ev.field("AppointDate"),1))
+        log("appointdate isdate:"+dt.toDateISO(dt.isDate(ev.field("AppointDate"),1)))
         found = this[e.name].some(v=>{
           if(ev.field("EntryMx")=="SetOR") {
             if(visittype=="Admit") {
-              log(dt.toDateISO(v.field("VisitDate"))+"="+dt.toDateISO(dt.calSubtract(ev.field("AppointDate")))+"; "+v.field("VisitType")+"="+visittype)
-              return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(dt.calSubtract(ev.field("AppointDate"))) && v.field("VisitType") == visittype
+              log(dt.toDateISO(v.field("VisitDate"))+"="+dt.toDateISO(dt.calSubtract(ev.field("AppointDate"), 1))+"; "+v.field("VisitType")+"="+visittype)
+              return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(dt.calSubtract(ev.field("AppointDate"), 1)) && v.field("VisitType") == visittype
             }
             else {
               log(dt.toDateISO(v.field("VisitDate"))+"="+dt.toDateISO(ev.field("AppointDate"))+"; "+v.field("VisitType")+"="+visittype)
