@@ -701,6 +701,7 @@ var ob = {
   },
   effectDxOpLink : function(e) {
     let dxf = e.field("DxOpList").length>0 ? e.field("DxOpList") : null
+    log("dxf:"+JSON.stringify(dxf))
     if(dxf) {
       dx.effect(dxf)
     }
