@@ -129,8 +129,18 @@ var pt = {
     if(!(e.name in this)) {
       this.getChild(e)
     }
+    
     if(this[e.name].length>0) {
-      found = this[e.name].some(v=>dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate")) && v.id!=ev.id)
+      found = this[e.name].some(v=>{
+        let opdate = ev.field("AppointDate")
+        let visitdate = new Date(opdate.getFullYear(), opdate.getMonth(), opdate.getDate()-1)
+        if(ev.field("EntryMx")=="SetOR") {
+          return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(visitdate) && v.id!=ev.id
+        }
+        else if(ev.field("EntryMx")=="F/U"){
+          return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(opdate) && v.id!=ev.id
+        }
+      })
     }
     return found;
   }
@@ -195,7 +205,12 @@ var vs = {
       
       let opdate = e.field("AppointDate")
       let visitdate = new Date(opdate.getFullYear(), opdate.getMonth(), opdate.getDate()-1)
-      v.set("VisitDate", e.field("EntryMx")=="SetOR" ? visitdate : opdate)
+      if(e.field("EntryMx")=="SetOR") {
+        v.set("VisitDate", visitdate)
+      }
+      else if(e.field("EntryMx")=="SetOR") {
+        v.set("VisitDate", opdate)
+      }
       v.set("Patient", p.name)
       v.set("Dr", e.field("Dr"))
       if(e.field("Photo").length>0) {
