@@ -278,7 +278,7 @@ var vs = {
         old.save.call(ob, o)
         ob.setStatus(o)
         ob.setQue(o)
-        op.setOpExtra(o)
+        ob.setOpExtra(o)
         ob.setX15(o)
         ob.setDxOpLink(o)
       }
