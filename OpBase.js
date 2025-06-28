@@ -243,7 +243,7 @@ var vs = {
     let calname = "";
     if(hdents.length>0) {
       outofduty = hdents.some(h=>h.field("OutOfDuty"));
-      holiday = hdents.some(h=>h.field("Holiday")) || my.gday(e.field("AppointDate"))==0 || my.gday(e.field("AppointDate"))==6;
+      holiday = hdents.some(h=>h.field("Holiday")) || e.field("AppointDate").getDay()==0 || e.field("AppointDate").getDay()==6;
       opextra = hdents.some(h=>h.field("Title") == "ORนอกเวลา");
       let found = hdents.find(h=>h.field("Title") == "ORนอกเวลา");
       if (found) calname = found.field("Calendar");
