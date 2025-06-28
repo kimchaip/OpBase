@@ -149,6 +149,14 @@ var pt = {
 var vs = {
   name : "Visit",
   lib : libByName("Visit"),
+  validEntryMx : function(e) {
+    if(e.field("EntryMx")=="SetOR") {
+      if(!e.field("Diagnosis") || !e.field("Operation")) {
+        cancel()
+        message("Diagnosis and Operation Field are not empty")
+      }
+    }
+  },
   setDCDate : function(e) {
     if(e.field("VisitType")=="OPD" ) {
       e.set("DCDate", e.field("VisitDate"))
@@ -855,6 +863,7 @@ var tg = {
   },
   vsCreateBefore : function(e) {
     old.save.call(vs, e)
+    vs.validEntryMx(e)
     vs.setDCDate(e)
     vs.setStatus(e)
     vs.setWard(e)
@@ -866,6 +875,7 @@ var tg = {
   },
   vsUpdateBefore : function(e) {
     old.save.call(vs, e)
+    vs.validEntryMx(e)
     vs.setDCDate(e)
     vs.setStatus(e)
     vs.setWard(e)
