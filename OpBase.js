@@ -227,7 +227,7 @@ var vs = {
     if(e.field("EntryMx")!="<Default>" && p) {
       if(pt.isDuplicate(p, e)) {
         cancel()
-        message("Found Duplication of Appoint Date, Patient, VisitType. Please change Appoint Date or Operation")
+        message("Found Duplication!! Please change Appoint Date or Operation")
       }
     }
     
