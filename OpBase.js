@@ -853,6 +853,7 @@ var tg = {
     vs.setPx(e)
   },
   vsCreateAfter : function(e) {
+    vs.entryMx(e)
     vs.setPtField(e)
   },
   vsUpdateBefore : function(e) {
@@ -863,6 +864,7 @@ var tg = {
     vs.setPx(e)
   },
   vsUpdateAfter : function(e) {
+    vs.entryMx(e)
     vs.setPtField(e)
   },
   obCreateBefore : function(e) {
