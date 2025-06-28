@@ -756,7 +756,7 @@ var dx = {
 }
 
 var op = {
-  name : "OperationList",
+  name : "OpList",
   lib : libByName("OpList"),
   create : function(op,optime) {
     let o = new Object()
