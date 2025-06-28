@@ -260,6 +260,7 @@ var vs = {
       if(e.field("Photo").length>0) {
         v.set("Photo", e.field("Photo").join())
       }
+      old.save.call(vs, v)
       vs.setDCDate(e)
       vs.setStatus(v)
       vs.setPx(v)
@@ -274,6 +275,7 @@ var vs = {
 
         let o = ob.lib.create(oo)
         o.set("Visit", v.name)
+        old.save.call(ob, o)
         ob.setStatus(o)
         ob.setQue(o)
         op.setOpExtra(o)
