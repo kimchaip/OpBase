@@ -228,8 +228,6 @@ var vs = {
         tg.obUpdateBefore(o)
         tg.obUpdateAfter(o)
       }
-      log(JSON.stringify(v))
-      log(JSON.stringify(o))
       return v
     }
     log("null")
