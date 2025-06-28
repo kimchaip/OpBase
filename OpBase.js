@@ -417,7 +417,7 @@ var vs = {
     this[e.name] = ob.lib.linksTo(e)
     if(this[e.name].length>0) {
       this[e.name].forEach(o=> {
-        ob.recalDxOpLink(o)
+        ob.effectDxOpLink(o)
         o.trash()
       })
     }
@@ -698,7 +698,7 @@ var ob = {
       que.save(newqs)
     }
   },
-  recalDxOpLink : function(e) {
+  effectDxOpLink : function(e) {
     let dxf = e.field("DxOpList").length>0 ? e.field("DxOpList") : null
     if(dxf) {
       dx.effect(dxf)
@@ -1023,7 +1023,7 @@ var tg = {
 
   },
   vsDeleteAfter : function(e) {
-
+    vs.deleteChild(e)
   },
   obCreateBefore : function(e) {
     old.save.call(ob, e)  // save ofd field value to old
@@ -1062,7 +1062,7 @@ var tg = {
 
   },
   obDeleteAfter : function(e) {
-    ob.recalDxOpLink(e)
+    ob.effectDxOpLink(e)
   },
   dxCreateBefore : function(e) {
     dx.effect(e)  // update count of diagnosis
