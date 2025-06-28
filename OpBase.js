@@ -370,6 +370,7 @@ var vs = {
         ob.setX15(o)
         ob.setOpTime(o)
         ob.setDxOpLink(o)
+        ob.effectVisit(o)
       }
       return v
     }
@@ -1053,7 +1054,6 @@ var tg = {
     ob.setOpTime(e)       // set OpTime field based on TimeIn and TimeOut
     ob.setDxOpLink(e)     // set DxOpList and OperationList fields based on Dx and Op if change -> update count/opTimeX field
     ob.setOpType(e)       // set OpType field based on OperationList
-    ob.setVsVisitType(e)  // set VisitType field in Visit based on DxOpList
   },
   obUpdateAfter : function(e) {
     ob.effectVisit(e)     // effect to Visit : VSType(based on child count, VSDate, Dx, Op, OpType), VSDCDate, Status, Ward
