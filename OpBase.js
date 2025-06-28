@@ -34,6 +34,14 @@ var dt = {
     else {
       return ""
     }
+  },
+  calSubtract : function(date, d) {
+    if(this.isDate(date)) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate()-d)
+    }
+    else {
+      return date
+    }
   }
 }
 var today = new Date()
@@ -132,13 +140,11 @@ var pt = {
     
     if(this[e.name].length>0) {
       found = this[e.name].some(v=>{
-        let opdate = ev.field("AppointDate")
-        let visitdate = new Date(opdate.getFullYear(), opdate.getMonth(), opdate.getDate()-1)
         if(ev.field("EntryMx")=="SetOR") {
-          return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(visitdate) && v.id!=ev.id
+          return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(dt.calSubtract(ev.field("AppointDate")))
         }
         else if(ev.field("EntryMx")=="F/U"){
-          return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(opdate) && v.id!=ev.id
+          return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate"))
         }
       })
     }
@@ -208,16 +214,13 @@ var vs = {
   create : function(e) {
     let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
     if (p && p.field("Status")!="Dead") {
-      
       let v = this.lib.create({})
       
-      let opdate = e.field("AppointDate")
-      let visitdate = new Date(opdate.getFullYear(), opdate.getMonth(), opdate.getDate()-1)
       if(e.field("EntryMx")=="SetOR") {
-        v.set("VisitDate", visitdate)
+        v.set("VisitDate", dt.calSubtract(e.field("AppointDate"), 1))
       }
       else if(e.field("EntryMx")=="SetOR") {
-        v.set("VisitDate", opdate)
+        v.set("VisitDate", e.field("AppointDate"))
       }
       v.set("Patient", p.name)
       v.set("Dr", e.field("Dr"))
@@ -502,6 +505,12 @@ var ob = {
           v.set("VisitType", "Admit")
         }
         if(oldvstype != v.field("VisitType")) {
+          if(v.field("VisitType")=="OPD") {
+            v.set("VisitDate", e.field("OpDate"))
+          }
+          else if(v.field("VisitType")=="Admit") {
+            v.set("VisitDate", dt.calSubtract(e.field("OpDate"), 1))
+          }
           vs.setDCDate(v)
           vs.setStatus(v)
           vs.setWard(v)
