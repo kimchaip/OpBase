@@ -650,7 +650,7 @@ var dx = {
     }
   },
   effect : function(e) {
-    this.getChild(e)
+    this[e.name] = ob.lib.linksTo(e)
     if(this[e.name].length > 0) {
       e.set("Count", this[e.name].length)
     }
@@ -696,7 +696,7 @@ var op = {
     }
   },
   effect : function(e) {
-    this.getChild(e)  // get child operations
+    this[e.name] = ob.lib.linksTo(e)
     if(this[e.name].length > 0) {
       e.set("Count", this[e.name].length)
       // Calculate average operation time
