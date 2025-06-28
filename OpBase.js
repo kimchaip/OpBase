@@ -266,7 +266,7 @@ var vs = {
       vs.setPtField(v)
 
       if(e.field("EntryMx")=="SetOR") {
-        let oo = 
+        let oo = new Object()
         oo["OpDate"] = e.field("AppointDate")
         oo["OpType"] = optype
         oo["Op"] = e.field("Operation")
