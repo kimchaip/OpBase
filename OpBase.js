@@ -154,9 +154,8 @@ var pt = {
             else {
               return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate")) && v.field("VisitType") == visittype
             }
-            
           }
-          else if(ev.field("EntryMx")=="F/U"){
+          else if(ev.field("EntryMx")=="F/U") {
             return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate")) && v.field("VisitType") == visittype
           }
         })
@@ -170,11 +169,20 @@ var vs = {
   name : "Visit",
   lib : libByName("Visit"),
   validEntryMx : function(e) {
-    if(e.field("EntryMx")=="SetOR") {
-      if(!e.field("Diagnosis") || !e.field("Operation")) {
-        cancel()
-        message("Diagnosis and Operation Field are not empty")
-      }
+    let field = []
+    if(e.field("EntryMx")!="<Default>" && !e.field("AppointDate")) {
+      field.push("AppointDate")
+    }
+    if(e.field("EntryMx")=="SetOR" && !e.field("Diagnosis")) {
+      field.push("Diagnosis")
+    }
+    if(e.field("EntryMx")=="SetOR" && !e.field("Operation")) {
+      field.push("Operation")
+    }
+
+    if(field.length>0) {
+      cancel()
+      message(field.join(", ").slice(0,-2)+(field.length==1?" Field is":" Fields are")+" not empty")
     }
   },
   setDCDate : function(e) {
@@ -246,20 +254,21 @@ var vs = {
       }
 
       let ov = new Object()
-      if(e.field("EntryMx")=="SetOR") {
-        if(visittype=="Admit") {
-          ov["VisitDate"] = dt.calSubtract(e.field("AppointDate"), 1)
-          ov["Ward"] = "Uro"
-        }
-        else {
-          ov["VisitDate"] = e.field("AppointDate")
-          ov["Ward"] = "OPD"
-        }
+
+      if(e.field("EntryMx")=="SetOR" && visittype=="Admit") {
+        ov["VisitDate"] = dt.calSubtract(e.field("AppointDate"), 1)
       }
       else if(e.field("EntryMx")=="F/U") {
         ov["VisitDate"] = e.field("AppointDate")
+      }
+
+      if(visittype=="Admit") {
+        ov["Ward"] = "Uro"
+      }
+      else {
         ov["Ward"] = "OPD"
       }
+
       ov["VisitType"] = visittype
       ov["Dr"] =e.field("Dr")
 
@@ -310,7 +319,7 @@ var vs = {
     }
     
     let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
-    let duplicate = duplicate = pt.isDuplicate(p, e);
+    let duplicate = pt.isDuplicate(p, e);
     if (e.field("EntryMx")== "F/U" &&  e.field("AppointDate")) {
       if(!duplicate) {
         let last = vs.create(e);
