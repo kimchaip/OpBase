@@ -228,7 +228,33 @@ var vs = {
     }
   },
   setVisitType : function(e) {
+    this.getChild(e)
+    if(this[e.name].length>0) {
+      if(this[e.name].length==1) {
+        let o = this[e.name][0]
+        if(dt.toDateISO(e.field("VisitDate"))>dt.toDateISO(today)) {
+          let oldvstype = e.field("VisitType")
+          let dxf = o.field("DxOpList").length>0 ? o.field("DxOpList")[0] : null
+          let vstype = dx.getVStypeByDx(dxf)
+          if(!vstype) {
+            vstype = o.field("OpType")=="LA" ? "OPD" : "Admit"
+          }
+          e.set("VisitType", vstype)
 
+          if(oldvstype != e.field("VisitType")) {
+            if(e.field("VisitType")=="OPD") {
+              e.set("VisitDate", o.field("OpDate"))
+            }
+            else if(e.field("VisitType")=="Admit") {
+              e.set("VisitDate", dt.calSubtract(o.field("OpDate"), 1))
+            }
+          }
+        }
+      }
+      else {
+        e.set("VisitType", "Admit")
+      }
+    }
   },
   setDCDate : function(e) {
     if(e.field("VisitType")=="OPD" ) {
@@ -583,35 +609,13 @@ var ob = {
       }
     }
   },
-  setVsVisitType : function(e) {
-    let dxf = e.field("DxOpList").length>0 ? e.field("DxOpList")[0] : null
-    if(dxf && dxf.name in dx) {
-      let vstype = dx.getVStypeByDx(dxf)
-      let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
-      if(v && dt.toDateISO(v.field("VisitDate")) > dt.toDateISO(today)) {
-        let oldvstype = v.field("VisitType")
-        if(vstype) {
-          v.set("VisitType", vstype)  // set visit type based on diagnosis
-        }
-        else if(e.field("OpType")=="LA") {
-          v.set("VisitType", "OPD")
-        }
-        else if(e.field("OpType")=="GA") {
-          v.set("VisitType", "Admit")
-        }
-
-        if(oldvstype != v.field("VisitType")) {
-          if(v.field("VisitType")=="OPD") {
-            v.set("VisitDate", e.field("OpDate"))
-          }
-          else if(v.field("VisitType")=="Admit") {
-            v.set("VisitDate", dt.calSubtract(e.field("OpDate"), 1))
-          }
-          vs.setDCDate(v)
-          vs.setStatus(v)
-          vs.setWard(v)
-        }
-      }
+  effectVisit : function(e) {
+    let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
+    if(v) {
+      vs.setVisitType(v)
+      vs.setDCDate(v)
+      vs.setStatus(v)
+      vs.setWard(v)
     }
   },
   setDJstent : function(e) {
@@ -992,6 +996,7 @@ var tg = {
   vsCreateBefore : function(e) {
     old.save.call(vs, e)
     vs.validEntryMx(e)
+    vs.setVisitType(e)
     vs.setDCDate(e)
     vs.setStatus(e)
     vs.setWard(e)
@@ -1004,6 +1009,7 @@ var tg = {
   vsUpdateBefore : function(e) {
     old.save.call(vs, e)
     vs.validEntryMx(e)
+    vs.setVisitType(e)
     vs.setDCDate(e)
     vs.setStatus(e)
     vs.setWard(e)
@@ -1031,9 +1037,9 @@ var tg = {
     ob.setOpTime(e)       // set OpTime field based on TimeIn and TimeOut
     ob.setDxOpLink(e)     // set DxOpList and OperationList fields based on Dx and Op if change -> update count/opTimeX field
     ob.setOpType(e)       // set OpType field based on OperationList
-    ob.setVsVisitType(e)  // set VisitType field in Visit based on DxOpList
   },
   obCreateAfter : function(e) {
+    ob.effectVisit(e)     // effect to Visit : VSType(based on child count, VSDate, Dx, Op, OpType), VSDCDate, Status, Ward
   },
   obUpdateBefore : function(e) {
     old.save.call(ob, e)  // save ofd field value to old
@@ -1050,6 +1056,7 @@ var tg = {
     ob.setVsVisitType(e)  // set VisitType field in Visit based on DxOpList
   },
   obUpdateAfter : function(e) {
+    ob.effectVisit(e)     // effect to Visit : VSType(based on child count, VSDate, Dx, Op, OpType), VSDCDate, Status, Ward
   },
   obDeleteBefore : function(e) {
 
