@@ -262,7 +262,7 @@ var vs = {
       }
       else message("Check appoint date whether it is duplicated");
     }
-    else if (e.field("EntryMx")== "set OR" &&  e.field("AppointDate")) {
+    else if (e.field("EntryMx")== "SetOR" &&  e.field("AppointDate")) {
       duplicate = pt.isDuplicate(p, e);
       log("dup :"+duplicate)
       if(!duplicate) {
@@ -286,7 +286,7 @@ var vs = {
       else message("check appoint date whether it is duplicated")
       log("check appoint date whether it is duplicated")
     }
-    else if (e.field("EntryMx")=="F/U" || e.field("EntryMx")=="set OR") {
+    else if (e.field("EntryMx")=="F/U" || e.field("EntryMx")=="SetOR") {
       message("Appoint date must not leave blank")
       log("Appoint date must not leave blank")
     }
