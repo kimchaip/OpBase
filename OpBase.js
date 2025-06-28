@@ -180,7 +180,7 @@ var pt = {
         if(!visittype) {
           visittype = "Admit"
         }
-        log("appointdate:"+ev.field("AppointDate"))
+        log("appointdate:"+dt.calSubtract(ev.field("AppointDate"),1))
         found = this[e.name].some(v=>{
           if(ev.field("EntryMx")=="SetOR") {
             if(visittype=="Admit") {
