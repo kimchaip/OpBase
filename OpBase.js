@@ -246,33 +246,34 @@ var vs = {
       if (found) calname = found.field("Calendar");
     }
     
-    let duplicate = false;
+    let duplicate = false
+    let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
     if (e.field("EntryMx")== "F/U" &&  e.field("AppointDate")) {
-      duplicate = emx.checkduplicate.call(cso, e);
+      duplicate = pt.isDuplicate(p, e);
       if(!duplicate) {
-        last = emx.createnew.call(cso, e);
+        let last = vs.create(e);
         last.show();
-        cal.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
+        hd.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
       }
       else message("Check appoint date whether it is duplicated");
     }
     else if (e.field("EntryMx")== "set OR" &&  e.field("AppointDate")) {
-      duplicate = emx.checkduplicate.call(uro, e);
+      duplicate = pt.isDuplicate(p, e);
       if(!duplicate) {
         if(outofduty) {
           if(e.field("Dr")!="ชัยพร") {
-            last = emx.createnew.call(uro, e);
+            let last = vs.create(e);
             last.show();
-            cal.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
+            hd.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
           }
           else {
             message("This 'AppointDate' overlap with '" + hdent.field("Title") + "' . please change Appointdate or Dr");
           }
         }
         else {
-          last = emx.createnew.call(uro, e);
+          let last = vs.create(e);
           last.show();
-          cal.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
+          hd.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
         }
       }
       else message("check appoint date whether it is duplicated");
@@ -694,6 +695,17 @@ var hd = {
     }
     else {
       return []
+    }
+  },
+  notify : function (outofduty, holiday, opextra, own) {
+    if(outofduty || holiday || opextra) {  // warning when outofduty, holiday, opextra
+      let textarr = [];
+      const calName = ["Calendar","Sak","Krissana","Suthee"];
+      const translate = ["ชัยพร", "เอกณัฏฐ์","กฤษณะ","สุธี"];
+      if(outofduty) textarr.push("out of office");
+      if(holiday) textarr.push("holiday");
+      if(opextra) textarr.push("ORนอกเวลา " + translate[calName.indexOf(own)]);
+      message("Warning : Date is overlap with " + textarr.join());
     }
   }
 }
