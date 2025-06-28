@@ -171,20 +171,16 @@ var pt = {
         if(!visittype) {
           visittype = "Admit"
         }
-        log("appointdate isdate:"+dt.toDateISO(dt.isDate(ev.field("AppointDate"),1)))
         found = this[e.name].some(v=>{
           if(ev.field("EntryMx")=="SetOR") {
             if(visittype=="Admit") {
-              log(dt.toDateISO(v.field("VisitDate"))+"="+dt.toDateISO(dt.calSubtract(ev.field("AppointDate"), 1))+"; "+v.field("VisitType")+"="+visittype)
               return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(dt.calSubtract(ev.field("AppointDate"), 1)) && v.field("VisitType") == visittype
             }
             else {
-              log(dt.toDateISO(v.field("VisitDate"))+"="+dt.toDateISO(ev.field("AppointDate"))+"; "+v.field("VisitType")+"="+visittype)
               return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate")) && v.field("VisitType") == visittype
             }
           }
           else if(ev.field("EntryMx")=="F/U") {
-            log(dt.toDateISO(v.field("VisitDate"))+"="+dt.toDateISO(ev.field("AppointDate"))+"; "+v.field("VisitType")+"="+visittype)
             return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate")) && v.field("VisitType") == visittype
           }
         })
@@ -854,7 +850,6 @@ var hd = {
       if(holiday) textarr.push("holiday");
       if(opextra) textarr.push("ORนอกเวลา " + translate[calName.indexOf(own)]);
       message("Warning : Date is overlap with " + textarr.join());
-      log("Warning : Date is overlap with " + textarr.join())
     }
   }
 }
@@ -971,9 +966,6 @@ var que = {
     arr.forEach((o,i)=>{
       o.set("Que",("0"+(i+1)).slice(-2))
     })
-  },
-  log : function(arr, title, opdate, optype) {
-    log(title+" :"+opdate+", "+optype+", ["+arr.map(o=>o.field("Visit")[0].name+"; "+o.field("Que")).join(", ")+"]")
   }
 }
 
@@ -1021,10 +1013,10 @@ var tg = {
     vs.setPtField(e)
   },
   vsDeleteBefore : function(e) {
-
+    vs.deleteChild(e)
   },
   vsDeleteAfter : function(e) {
-    vs.deleteChild(e)
+    
   },
   obCreateBefore : function(e) {
     old.save.call(ob, e)  // save ofd field value to old
