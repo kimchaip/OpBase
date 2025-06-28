@@ -149,13 +149,16 @@ var pt = {
         found = this[e.name].some(v=>{
           if(ev.field("EntryMx")=="SetOR") {
             if(visittype=="Admit") {
+              log(dt.toDateISO(v.field("VisitDate"))+"="+dt.toDateISO(dt.calSubtract(ev.field("AppointDate")))+"; "+v.field("VisitType")+"="+visittype)
               return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(dt.calSubtract(ev.field("AppointDate"))) && v.field("VisitType") == visittype
             }
             else {
+              log(dt.toDateISO(v.field("VisitDate"))+"="+dt.toDateISO(ev.field("AppointDate"))+"; "+v.field("VisitType")+"="+visittype)
               return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate")) && v.field("VisitType") == visittype
             }
           }
           else if(ev.field("EntryMx")=="F/U") {
+            log(dt.toDateISO(v.field("VisitDate"))+"="+dt.toDateISO(ev.field("AppointDate"))+"; "+v.field("VisitType")+"="+visittype)
             return dt.toDateISO(v.field("VisitDate")) == dt.toDateISO(ev.field("AppointDate")) && v.field("VisitType") == visittype
           }
         })
@@ -184,6 +187,15 @@ var vs = {
       cancel()
       message(field.join(", ")+(field.length==1?" Field is":" Fields are")+" not empty")
     }
+
+    let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
+    if(e.field("EntryMx")!="<Default>" && p) {
+      if(pt.isDuplicate(p, e)) {
+        cancel()
+        message("Found Duplication of Appoint Date, Patient, VisitType. Please change Appoint Date or Operation")
+      }
+    }
+    
   },
   setDCDate : function(e) {
     if(e.field("VisitType")=="OPD" ) {
@@ -318,38 +330,27 @@ var vs = {
       if (found) calname = found.field("Calendar");
     }
     
-    let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
-    let duplicate = pt.isDuplicate(p, e);
-    if (e.field("EntryMx")== "F/U" &&  e.field("AppointDate")) {
-      if(!duplicate) {
-        let last = vs.create(e);
-        last.show();
-        hd.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
-      }
-      else message("Check appoint date whether it is duplicated");
+    if (e.field("EntryMx")== "F/U") {
+      let last = vs.create(e);
+      last.show();
+      hd.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
     }
-    else if (e.field("EntryMx")== "SetOR" &&  e.field("AppointDate")) {
-      if(!duplicate) {
-        if(outofduty) {
-          if(e.field("Dr")!="ชัยพร") {
-            let last = vs.create(e);
-            last.show();
-            hd.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
-          }
-          else {
-            message("This 'AppointDate' overlap with '" + hdent.field("Title") + "' . please change Appointdate or Dr")
-          }
-        }
-        else {
+    else if (e.field("EntryMx")== "SetOR") {
+      if(outofduty) {
+        if(e.field("Dr")!="ชัยพร") {
           let last = vs.create(e);
           last.show();
           hd.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
         }
+        else {
+          message("This 'AppointDate' overlap with '" + hdents.field("Title") + "' . please change Appointdate or Dr")
+        }
       }
-      else message("check appoint date whether it is duplicated")
-    }
-    else if (e.field("EntryMx")=="F/U" || e.field("EntryMx")=="SetOR") {
-      message("Appoint date must not leave blank")
+      else {
+        let last = vs.create(e);
+        last.show();
+        hd.notify(outofduty, holiday, opextra, calname)  // warning when outofduty, holiday, opextra
+      }
     }
     e.set("EntryMx", "<Default>");
   }
@@ -958,6 +959,12 @@ var tg = {
   vsUpdateAfter : function(e) {
     vs.entryMx(e)
     vs.setPtField(e)
+  },
+  vsDeleteBefore : function(e) {
+
+  },
+  vsDeleteAfter : function(e) {
+
   },
   obCreateBefore : function(e) {
     old.save.call(ob, e)  // save ofd field value to old
