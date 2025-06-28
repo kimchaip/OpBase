@@ -329,7 +329,7 @@ var vs = {
       if(e.field("EntryMx")=="SetOR" && visittype=="Admit") {
         ov["VisitDate"] = dt.calSubtract(e.field("AppointDate"), 1)
       }
-      else if(e.field("EntryMx")=="F/U") {
+      else if(e.field("EntryMx")!="<Default>") {
         ov["VisitDate"] = e.field("AppointDate")
       }
 
