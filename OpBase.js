@@ -860,25 +860,30 @@ var old = {
     let oe = this.lib.findById(e.id)
     let o = {}
     for(let f of fields) {
-      if(f=="Patient" || f=="Visit" || f=="DxOpList" || f=="OperationList") {
-        o[f] = oe.field(f).length>0 ? oe.field(f)[0].name : null
-      }
-      else if(dt.isDate(oe.field(f))) {
-        if(f.includes("Time")) {
-          o[f] = oe.field(f)
+      if(oe) {
+        if(f=="Patient" || f=="Visit" || f=="DxOpList" || f=="OperationList") {
+          o[f] = oe.field(f).length>0 ? oe.field(f)[0].name : null
+        }
+        else if(dt.isDate(oe.field(f))) {
+          if(f.includes("Time")) {
+            o[f] = oe.field(f)
+          }
+          else {
+            o[f] = dt.toDateISO(oe.field(f))
+          }
+        }
+        else if(Array.isArray(oe.field(f))) {
+          o[f] = oe.field(f).map(v => v.name).sort().join(",")
+        }
+        else if(typeof oe.field(f) == "object" && oe.field(f) != null) {
+          o[f] = JSON.stringify(oe.field(f))
         }
         else {
-          o[f] = dt.toDateISO(oe.field(f))
+          o[f] = oe.field(f)
         }
       }
-      else if(Array.isArray(oe.field(f))) {
-        o[f] = oe.field(f).map(v => v.name).sort().join(",")
-      }
-      else if(typeof oe.field(f) == "object" && oe.field(f) != null) {
-        o[f] = JSON.stringify(oe.field(f))
-      }
       else {
-        o[f] = oe.field(f)
+        o[f] = null
       }
     }
     old[this.name] = o
