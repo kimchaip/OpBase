@@ -609,6 +609,7 @@ var ob = {
   effectVisit : function(e) {
     let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
     if(v) {
+      old.save.call(vs, v)
       vs.setVisitType(v)
       vs.setDCDate(v)
       vs.setStatus(v)
