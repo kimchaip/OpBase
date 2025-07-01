@@ -187,6 +187,16 @@ var pt = {
       }
     }
     return found
+  },
+  dailyUpdate : function(all) {
+    all.forEach(p => {
+      if (p.field("Done")==true) {
+        p.set("Done", false) ;
+      }
+      if(p.field("DOB")) {
+        p.set("Age", dt.calAge(p.field("DOB")))
+      }
+    })
   }
 }
 
@@ -976,17 +986,18 @@ var que = {
 }
 
 var tg = {
+  ptDaily : function(all) {
+    pt.dailyUpdate(all)
+  },
   ptCreateBefore : function(e) {
     old.save.call(pt, e)
     pt.setAgeDOB(e)
-    e.recalc()
   },
   ptCreateAfter : function(e) {
   },
   ptUpdateBefore : function(e) {
     old.save.call(pt, e)
     pt.setAgeDOB(e)
-    e.recalc()
   },
   ptUpdateAfter : function(e) {
   },
