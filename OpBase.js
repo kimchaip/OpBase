@@ -76,6 +76,18 @@ var dt = {
     else {
       return date
     }
+  },
+  calAdd : function(date, d) {
+    if(this.isDate(date)) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate()+d)
+    }
+    else if(this.isDateStr(date)) {
+      let odate = new Date(date)
+      return new Date(odate.getFullYear(), odate.getMonth(), odate.getDate()+d)
+    }
+    else {
+      return date
+    }
   }
 }
 var today = new Date()
@@ -428,6 +440,11 @@ var vs = {
         ob.effectDxOpLink(o)
       })
     }
+  },
+  dailyUpdate : function(all) {
+    all.forEach(v => {
+      vs.setStatus(v)
+    })
   }
 }
 
@@ -1000,6 +1017,9 @@ var tg = {
     pt.setAgeDOB(e)
   },
   ptUpdateAfter : function(e) {
+  },
+  vsDaily : function(all) {
+    vs.dailyUpdate(all)
   },
   vsCreateOpenEdit : function() {
   },
