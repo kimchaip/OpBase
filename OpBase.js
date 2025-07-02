@@ -170,7 +170,7 @@ var pt = {
         }
       })
       obs.sort((a,b)=>dt.toDateISO(a.field("OpDate"))>dt.toDateISO(b.field("OpDate")))
-      return obs.length>0 ? obs.reduce((t,o)=>t += o.field("Dx") + " > " + o.field("Dx") + " [" + dt.toDateShort(o.field("OpDate")) + "]\n","").slice(0,-1) : ""
+      return obs.length>0 ? obs.reduce((t,o)=>t += o.field("Dx") + " > " + o.field("Op") + " [" + dt.toDateShort(o.field("OpDate")) + "]\n","").slice(0,-1) : ""
     }
   },
   isDuplicate : function(e, ev) {
