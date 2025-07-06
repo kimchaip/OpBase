@@ -648,21 +648,24 @@ var ob = {
     let oldDJstent = e.field("DJstent")
     if(e.field("Status") != "Not") {
       if(opnote) {
-        let notdj = opnote.search(/(not|no|ไม่) *(|on|ใส่) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
-        let ondj = opnote.search(/(on|ใส่) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
-        let offdj = opnote.search(/(off|ถอด) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
+        let notdj = opnote.search(/(not|no|ไม่) *(|on|retain|ใส่) *(|rt|lt|right|left|bilat|bilateral)\.? *dj/i) > -1
+        let ondj = opnote.search(/(on|retain|ใส่) *(|rt|lt|right|left|bilat|bilateral)\.? *dj/i) > -1
+        let offdj = opnote.search(/(off|ถอด) *(|rt|lt|right|left|bilat|bilateral)\.? *dj/i) > -1
         let changedj = opnote.search(/(change|เปลี่ยน) *(|rt|lt|right|left|bilat|bilateral)\.* *dj/i) > -1
+        let opondj = e.field("Op").search(/\b(|rt|lt|right|left|bilat|bilateral)\.? *dj\b/i) > -1
+        let opoffdj = e.field("Op").search(/off +(|rt|lt|right|left|bilat|bilateral)\.? *dj/i) > -1
+        let opchangedj = e.field("Op").search(/change +(|rt|lt|right|left|bilat|bilateral)\.? *dj/i) > -1
 
         if(notdj) {
           e.set("DJstent", null)
         }
-        else if(changedj) {
+        else if(changedj||opchangedj) {
           e.set("DJstent", "change DJ")
         }
-        else if(offdj) {
+        else if(offdj||opoffdj) {
           e.set("DJstent", "off DJ")
         }
-        else if(ondj) {
+        else if(ondj||opondj) {
           e.set("DJstent", "on DJ")
         }
         else {
