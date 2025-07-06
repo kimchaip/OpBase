@@ -630,12 +630,12 @@ var ob = {
 
         let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
         if(v) {
-          let regop = new RegExp(e.field("OpNote"),"i")
+          let regop = new RegExp(e.field("Op"),"i")
           if(v.field("Rx") && v.field("Rx").search(regop)==-1) {
-            v.set("Rx", v.field("Rx")+"\n"+e.field("OpNote")+" ["+dt.toDateShort(e.field("OpDate"))+"]")  // set visit Rx by Op, OpDate
+            v.set("Rx", v.field("Rx")+"\n"+e.field("Op")+" ["+dt.toDateShort(e.field("OpDate"))+"]")  // set visit Rx by Op, OpDate
           }
           else if(!v.field("Rx")) {
-            v.set("Rx", e.field("OpNote")+" ["+dt.toDateShort(e.field("OpDate"))+"]")  // set visit Rx by OpNote, OpDate
+            v.set("Rx", e.field("Op")+" ["+dt.toDateShort(e.field("OpDate"))+"]")  // set visit Rx by OpNote, OpDate
           }
         }
       }
