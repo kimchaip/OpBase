@@ -55,11 +55,11 @@ var dt = {
   },
   toDateShort : function(date) {
     if(this.isDate(date)) {
-      return ("0"+date.getDate()).slice(-2)+"."+("0"+(date.getMonth()+1)).slice(-2)+"."+date.getFullYear().toString()
+      return date.getDate()+"."+(date.getMonth()+1)+"."+date.getFullYear()
     }
     else if(this.isDateStr(date)) {
       let odate = new Date(date)
-      return ("0"+odate.getDate()).slice(-2)+"."+("0"+(odate.getMonth()+1)).slice(-2)+"."+odate.getFullYear().toString()
+      return odate.getDate()+"."+(odate.getMonth()+1)+"."+odate.getFullYear()
     }
     else {
       return ""
