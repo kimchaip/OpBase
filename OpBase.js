@@ -203,11 +203,12 @@ var pt = {
   dailyUpdate : function(all) {
     all.forEach(p => {
       if (p.field("Done")==true) {
-        p.set("Done", false) ;
+        p.set("Done", false)
       }
       if(p.field("DOB")) {
         p.set("Age", dt.calAge(p.field("DOB")))
       }
+      this.setStatus(p)
     })
   }
 }
