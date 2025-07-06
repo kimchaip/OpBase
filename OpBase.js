@@ -327,6 +327,13 @@ var vs = {
       e.set("Px", pt.getPastHx(p,e.field("VisitDate")))
     }
   },
+  setRx : function(e) {
+    let rx = e.field("Rx")
+    rxarr = rx.split("\n")
+    rxarr = rxarr.map((l,i)=>l.trim().length>0 && l.search(/\[\d{1,2}\.\d{1,2}\.\d{4}\]/) == -1 ? l.trim()+" ["+dt.toDateShort(dt.calSubtract(today,rxarr.length-i-1))+"]" : l.trim())
+    
+    e.set("Rx", rxarr.join("\n"))
+  },
   create : function(e) {
     let p = e.field("Patient").length>0 ? e.field("Patient")[0] : null
     if (p && p.field("Status")!="Dead") {
@@ -596,9 +603,14 @@ var ob = {
       if(v) {
         v.set("Status", "Not")
         if(v.field("Rx") && v.field("Rx").search(/\n*.*ไม่ทำ.*/)==-1) {
-          v.set("Rx", v.field("Rx")+(v.field("Rx")?"\n":"")+dt.toDateShort(today)+e.field("OpNote"))  // set visit Rx to OpNote
+          v.set("Rx", v.field("Rx")+"\n"+e.field("OpNote")+" ["+dt.toDateShort(today)+"]")  // set visit Rx by OpNote
         }
-        v.set("DCDate", null)           // clear discharge date
+        else if(!v.field("Rx")) {
+          v.set("Rx", e.field("OpNote")+" ["+dt.toDateShort(today)+"]")  // set visit Rx by OpNote
+        }
+        if(v.field("VisitType") == "Admit") {
+          v.set("DCDate", null)           // clear discharge date
+        }
         let p = v.field("Patient").length>0 ? v.field("Patient")[0] : null
         if(p) {                         // if this is the last visit
           pt.setStatus(p)               // set patient status
@@ -614,6 +626,13 @@ var ob = {
     else if(e.field("OpDate") && dt.toDateISO(e.field("OpDate")) <= dt.toDateISO(today)) {
       if(e.field("OpNote")) {
         e.set("Status", "Done")
+        let regop = new RegExp(e.field("OpNote"),"i")
+        if(v.field("Rx") && v.field("Rx").search(regop)==-1) {
+          v.set("Rx", v.field("Rx")+"\n"+e.field("OpNote")+" ["+dt.toDateShort(e.field("OpDate"))+"]")  // set visit Rx by Op, OpDate
+        }
+        else if(!v.field("Rx")) {
+          v.set("Rx", e.field("OpNote")+" ["+dt.toDateShort(e.field("OpDate"))+"]")  // set visit Rx by OpNote, OpDate
+        }
       }
     }
     // If status changed from Not, clear visit Rx and set visit status to null
