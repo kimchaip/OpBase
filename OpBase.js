@@ -127,7 +127,11 @@ var pt = {
     this.getChild(e)
     if(this[e.name].length>0) {
       let v = this[e.name].find(v=> v.field("Status")=="Active")
-      if(v) {
+      let vdead = this[e.name].find(v=> v.field("Rx").search(/\b(dead|death\b)/i) > -1)
+      if(vdead) {
+        e.set("Status", "Dead")
+      }
+      else if(v) {
         e.set("Status", "Active")
         e.set("Ward", v.field("Ward"))
       }
