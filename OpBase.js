@@ -1063,6 +1063,7 @@ var tg = {
     vs.setStatus(e)
     vs.setWard(e)
     vs.setPx(e)
+    vs.setRx(e)
   },
   vsCreateAfter : function(e) {
     vs.entryMx(e)
@@ -1076,6 +1077,7 @@ var tg = {
     vs.setStatus(e)
     vs.setWard(e)
     vs.setPx(e)
+    vs.setRx(e)
   },
   vsUpdateAfter : function(e) {
     vs.entryMx(e)
