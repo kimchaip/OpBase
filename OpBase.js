@@ -596,6 +596,7 @@ var ob = {
   },
   setStatus : function(e) {
     let oldStatus = e.field("Status")
+    
     if(e.field("OpNote").search(/^ *ไม่ทำ/)>-1) {
       e.set("Status", "Not")
       // If operation is Not, set visit status to Not
@@ -626,12 +627,16 @@ var ob = {
     else if(e.field("OpDate") && dt.toDateISO(e.field("OpDate")) <= dt.toDateISO(today)) {
       if(e.field("OpNote")) {
         e.set("Status", "Done")
-        let regop = new RegExp(e.field("OpNote"),"i")
-        if(v.field("Rx") && v.field("Rx").search(regop)==-1) {
-          v.set("Rx", v.field("Rx")+"\n"+e.field("OpNote")+" ["+dt.toDateShort(e.field("OpDate"))+"]")  // set visit Rx by Op, OpDate
-        }
-        else if(!v.field("Rx")) {
-          v.set("Rx", e.field("OpNote")+" ["+dt.toDateShort(e.field("OpDate"))+"]")  // set visit Rx by OpNote, OpDate
+
+        let v = e.field("Visit").length>0 ? e.field("Visit")[0] : null
+        if(v) {
+          let regop = new RegExp(e.field("OpNote"),"i")
+          if(v.field("Rx") && v.field("Rx").search(regop)==-1) {
+            v.set("Rx", v.field("Rx")+"\n"+e.field("OpNote")+" ["+dt.toDateShort(e.field("OpDate"))+"]")  // set visit Rx by Op, OpDate
+          }
+          else if(!v.field("Rx")) {
+            v.set("Rx", e.field("OpNote")+" ["+dt.toDateShort(e.field("OpDate"))+"]")  // set visit Rx by OpNote, OpDate
+          }
         }
       }
     }
